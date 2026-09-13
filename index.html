@@ -1,0 +1,1370 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f7f7f7" />
+    <title>小屋</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png" />
+  <link rel="stylesheet" href="./styles.css?v=599" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="title-row">
+          <h1 id="view-title">Chat</h1>
+          <span class="ai-status" id="ai-status" hidden></span>
+        </div>
+        <div class="header-actions">
+          <div class="chat-header-menu-wrap" id="chat-header-menu-wrap">
+            <button class="header-action" id="chat-header-menu-button" type="button" aria-label="更多聊天操作" aria-expanded="false" aria-controls="chat-header-menu">
+              <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>
+              </svg>
+            </button>
+            <button class="chat-header-menu-backdrop" id="chat-header-menu-backdrop" type="button" aria-label="关闭聊天操作" hidden></button>
+            <div class="chat-header-menu" id="chat-header-menu" role="dialog" aria-modal="true" aria-label="聊天操作" hidden>
+              <div class="chat-header-menu-panel">
+                <span class="chat-header-menu-handle" aria-hidden="true"></span>
+                <button class="chat-header-menu-item" id="quick-test-api-button" type="button">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                  </svg>
+                  <span>链接</span>
+                </button>
+                <button class="chat-header-menu-item is-danger" id="clear-chat-button" type="button">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                  <span>清空聊天记录</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <button class="header-action" id="write-diary-button" type="button" aria-label="让 TA 发布动态" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M10 3H8"/>
+              <path d="m15.007 5.008 3.987 3.986"/>
+              <path d="M20 15v4"/>
+              <path d="M21.174 6.813a2.82 2.82 0 0 0-3.986-3.987L3.842 16.175a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
+              <path d="M22 17h-4"/>
+              <path d="M4 5v4"/>
+              <path d="M6 7H2"/>
+              <path d="M9 2v2"/>
+            </svg>
+          </button>
+          <button class="header-action" id="open-user-moment-header-button" type="button" aria-label="发布动态" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14" />
+              <path d="M12 5v14" />
+            </svg>
+          </button>
+          <button class="header-action" id="clear-diary-button" type="button" aria-label="清空动态" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+              <path d="M3 6h18" />
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+          </button>
+          <button class="header-action" id="back-home-button" type="button" aria-label="返回" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m12 19-7-7 7-7"/>
+              <path d="M19 12H5"/>
+            </svg>
+          </button>
+          <button class="header-action" id="clear-inner-diary-button" type="button" aria-label="清空 Diary" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+              <path d="M3 6h18" />
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+          </button>
+          <button class="header-action" id="export-inner-diary-button" type="button" aria-label="导出 Diary" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 3v12"/>
+              <path d="m7 10 5 5 5-5"/>
+              <path d="M5 21h14"/>
+            </svg>
+          </button>
+          <button class="header-action" id="import-book-header-button" type="button" aria-label="导入 txt" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14"/>
+              <path d="M12 5v14"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="view-stack">
+        <section class="view is-active" id="chat-view" aria-label="聊天">
+          <div class="chat-log" id="chat-log"></div>
+          <div class="deep-talk-active-bar" id="deep-talk-active-bar" hidden>
+            <span>DeepTalk · <strong id="deep-talk-active-term"></strong></span>
+            <button id="deep-talk-active-open-button" type="button">打开</button>
+            <button id="deep-talk-active-end-button" type="button" aria-label="结束 DeepTalk">结束</button>
+          </div>
+          <form class="composer" id="chat-form">
+            <div class="composer-pill">
+              <textarea id="chat-input" rows="1" autocomplete="off"></textarea>
+              <div class="composer-tools">
+                <button class="composer-icon-button" id="sticker-button" type="button" aria-label="发送表情包">
+                  <img src="./icons/chat-sticker-button.svg" alt="" aria-hidden="true" />
+                </button>
+                <button class="composer-icon-button" id="image-button" type="button" aria-label="添加" aria-expanded="false">
+                  <img src="./icons/chat-add-button.svg" alt="" aria-hidden="true" />
+                </button>
+                <button class="send-button" type="submit" aria-label="发送">
+                  <img src="./icons/chat-send-button.svg" alt="" aria-hidden="true" />
+                </button>
+              </div>
+            </div>
+            <div class="sticker-panel" id="sticker-panel" hidden></div>
+            <div class="chat-attachment-panel" id="image-action-panel" hidden>
+              <button class="chat-attachment-tile" id="open-image-upload-button" type="button">
+                <span class="chat-attachment-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                    <circle cx="9" cy="9" r="2"/>
+                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                  </svg>
+                </span>
+                <span>照片</span>
+              </button>
+              <button class="chat-attachment-tile" id="start-call-button" type="button">
+                <span class="chat-attachment-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.91.33 1.79.62 2.64a2 2 0 0 1-.45 2.11L8 9.74a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.64.62A2 2 0 0 1 22 16.92z"/>
+                  </svg>
+                </span>
+                <span>通话</span>
+              </button>
+              <button class="chat-attachment-tile" id="open-deep-talk-button" type="button">
+                <span class="chat-attachment-icon deep-talk-attachment-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3v18"/><path d="M3 12h18"/><path d="m5.6 5.6 12.8 12.8"/><path d="m18.4 5.6-12.8 12.8"/>
+                  </svg>
+                </span>
+                <span>DeepTalk</span>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="view contact-profile-view" id="contact-profile-view" aria-label="对方资料">
+          <article class="contact-profile-card">
+            <div class="contact-profile-hero">
+              <div class="contact-profile-avatar" id="contact-profile-avatar" aria-hidden="true"></div>
+              <div class="contact-profile-summary">
+                <p class="contact-profile-detail"><span>名字：</span><strong id="contact-profile-name"></strong></p>
+                <label class="contact-profile-detail" for="contact-profile-remark">
+                  <span>备注：</span>
+                  <input id="contact-profile-remark" type="text" maxlength="30" autocomplete="off" />
+                </label>
+              </div>
+            </div>
+            <button class="contact-profile-moment" id="open-contact-moment-button" type="button">
+              <strong>Moment</strong>
+              <span class="contact-profile-moment-preview" id="contact-profile-moment-preview" aria-hidden="true"></span>
+              <small id="contact-profile-moment-meta"></small>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m9 18 6-6-6-6"/>
+              </svg>
+            </button>
+          </article>
+        </section>
+
+        <section class="view contact-moments-view" id="contact-moments-view" aria-label="对方的个人动态">
+          <div class="timeline" id="contact-moment-list"></div>
+        </section>
+
+        <section class="view" id="diary-view" aria-label="动态">
+          <div class="timeline" id="diary-list"></div>
+        </section>
+
+        <section class="view" id="home-view" aria-label="主页">
+          <div class="home-grid">
+            <button class="home-avatar-card" id="set-anniversary-button" type="button" aria-label="设置开始日期">
+              <div class="home-avatar-pair">
+                <div class="home-avatar" id="home-ai-avatar" aria-hidden="true"></div>
+                <div class="home-avatar" id="home-user-avatar" aria-hidden="true"></div>
+              </div>
+              <div class="home-days" id="home-days">点击设置开始日期</div>
+            </button>
+            <button class="home-phone-card" id="open-phone-button" type="button" aria-label="打开 ta 的手机">
+              <span class="home-entry-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="12" height="20" x="6" y="2" rx="2.4"/>
+                  <path d="M10 5h4"/>
+                  <path d="M11.7 18.4h.6"/>
+                </svg>
+              </span>
+              <span class="home-phone-main">
+                <span class="home-phone-title">ta的手机</span>
+              </span>
+              <span class="home-phone-chevron" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </span>
+            </button>
+            <div class="home-feature-grid">
+              <div class="home-entry-stack">
+                <button class="home-entry" id="open-inner-diary-button" type="button" aria-label="打开 Diary">
+                  <span class="home-entry-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.05" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M13 22h5a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v7"/>
+                      <path d="M14 2v5a1 1 0 0 0 1 1h5"/>
+                      <path d="M3.62 18.8A2.25 2.25 0 1 1 7 15.836a2.25 2.25 0 1 1 3.38 2.966l-2.626 2.856a1 1 0 0 1-1.507 0z"/>
+                    </svg>
+                  </span>
+                  <span class="home-entry-main">
+                    <span class="home-entry-title">Diary</span>
+                    <span class="home-entry-meta" id="home-diary-meta">0 篇</span>
+                  </span>
+                </button>
+                <button class="home-entry" id="open-book-button" type="button" aria-label="打开 Book">
+                  <span class="home-entry-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.05" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                      <path d="M4 4v15.5A2.5 2.5 0 0 0 6.5 22H20"/>
+                      <path d="M8 7h8"/>
+                      <path d="M8 11h6"/>
+                      <path d="M20 17V4a2 2 0 0 0-2-2H6.5A2.5 2.5 0 0 0 4 4.5"/>
+                    </svg>
+                  </span>
+                  <span class="home-entry-main">
+                    <span class="home-entry-title">Book</span>
+                    <span class="home-entry-meta" id="home-book-meta">0 本书</span>
+                  </span>
+                </button>
+              </div>
+            </div>
+            <button class="home-note-card" id="refresh-note-button" type="button" aria-label="刷新小便签">
+              <div class="daily-note-text" id="daily-note-text">
+                <p class="note-greeting">给你：</p>
+                <p class="note-body">今天也在这里。</p>
+                <p class="note-signoff">小屋里的 AI · 2026.06.27.</p>
+              </div>
+            </button>
+          </div>
+        </section>
+
+        <section class="view phone-view" id="phone-view" aria-label="ta 的手机">
+          <div class="phone-os" id="phone-os" data-wallpaper="aurora">
+            <div class="phone-lock-screen" id="phone-lock-screen">
+              <div class="phone-lock-home" id="phone-lock-home">
+                <div class="phone-ios-statusbar" aria-hidden="true">
+                  <span>中国移动</span>
+                  <span class="phone-ios-status-icons">
+                    <i class="phone-ios-signal"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="phone-ios-wifi" aria-hidden="true"><path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.859a10 10 0 0 1 14 0"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/></svg>
+                    <i class="phone-ios-battery"><b>57</b></i>
+                  </span>
+                </div>
+                <div class="phone-lock-time-wrap">
+                  <span class="phone-lock-glyph" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3h-2V7a2 2 0 0 0-4 0v3z"/></svg>
+                  </span>
+                  <span class="phone-lock-date" id="phone-lock-date"></span>
+                  <strong class="phone-lock-time" id="phone-lock-time" aria-label="00:00"><span class="phone-lock-time-digits">00</span><span class="phone-lock-colon" aria-hidden="true"><i></i><i></i></span><span class="phone-lock-time-digits">00</span></strong>
+                </div>
+                <button class="phone-open-passcode-button" id="phone-open-passcode-button" type="button" aria-label="打开密码键盘">
+                  <span>向上轻扫解锁</span>
+                </button>
+                <span class="phone-home-indicator" aria-hidden="true"></span>
+              </div>
+              <div class="phone-passcode-screen" id="phone-passcode-screen" hidden>
+                <div class="phone-ios-statusbar" aria-hidden="true">
+                  <span>中国移动</span>
+                  <span class="phone-ios-status-icons">
+                    <i class="phone-ios-signal"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="phone-ios-wifi" aria-hidden="true"><path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.859a10 10 0 0 1 14 0"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/></svg>
+                    <i class="phone-ios-battery"><b>57</b></i>
+                  </span>
+                </div>
+                <div class="phone-passcode-heading">
+                  <span class="phone-lock-glyph" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3h-2V7a2 2 0 0 0-4 0v3z"/></svg>
+                  </span>
+                  <strong id="phone-passcode-message">输入密码</strong>
+                  <div class="phone-passcode-dots" id="phone-passcode-dots" aria-label="已输入 0 位密码">
+                    <i></i><i></i><i></i><i></i>
+                  </div>
+                </div>
+                <div class="phone-keypad" aria-label="数字密码键盘">
+                  <button class="phone-keypad-button" type="button" data-phone-digit="1"><b>1</b><small>&nbsp;</small></button>
+                  <button class="phone-keypad-button" type="button" data-phone-digit="2"><b>2</b><small>ABC</small></button>
+                  <button class="phone-keypad-button" type="button" data-phone-digit="3"><b>3</b><small>DEF</small></button>
+                  <button class="phone-keypad-button" type="button" data-phone-digit="4"><b>4</b><small>GHI</small></button>
+                  <button class="phone-keypad-button" type="button" data-phone-digit="5"><b>5</b><small>JKL</small></button>
+                  <button class="phone-keypad-button" type="button" data-phone-digit="6"><b>6</b><small>MNO</small></button>
+                  <button class="phone-keypad-button" type="button" data-phone-digit="7"><b>7</b><small>PQRS</small></button>
+                  <button class="phone-keypad-button" type="button" data-phone-digit="8"><b>8</b><small>TUV</small></button>
+                  <button class="phone-keypad-button" type="button" data-phone-digit="9"><b>9</b><small>WXYZ</small></button>
+                  <span></span>
+                  <button class="phone-keypad-button" type="button" data-phone-digit="0"><b>0</b><small>&nbsp;</small></button>
+                  <span></span>
+                </div>
+                <div class="phone-passcode-actions">
+                  <button id="phone-passcode-cancel" type="button">取消</button>
+                </div>
+                <span class="phone-home-indicator" aria-hidden="true"></span>
+              </div>
+            </div>
+
+            <div class="phone-desktop" id="phone-desktop" hidden>
+              <div class="phone-ios-statusbar phone-desktop-statusbar" aria-hidden="true">
+                <span>中国移动</span>
+                <span class="phone-ios-status-icons">
+                  <i class="phone-ios-signal"></i>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="phone-ios-wifi" aria-hidden="true"><path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.859a10 10 0 0 1 14 0"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/></svg>
+                  <i class="phone-ios-battery"><b>57</b></i>
+                </span>
+              </div>
+              <div class="phone-desktop-content">
+                <div class="phone-app-grid">
+                  <button class="phone-app-icon-button" type="button" data-phone-open-app="browser">
+                    <span class="phone-app-icon safari-icon" aria-hidden="true">
+                      <img src="./icons/浏览器.png" alt="" />
+                    </span>
+                    <span>浏览器</span>
+                  </button>
+                  <button class="phone-app-icon-button" type="button" data-phone-open-app="notes">
+                    <span class="phone-app-icon notes-icon" aria-hidden="true">
+                      <img src="./icons/备忘录.png" alt="" />
+                    </span>
+                    <span>备忘录</span>
+                  </button>
+                  <button class="phone-app-icon-button" type="button" data-phone-open-app="settings">
+                    <span class="phone-app-icon settings-icon" aria-hidden="true">
+                      <img src="./icons/设置 png.png" alt="" />
+                    </span>
+                    <span>设置</span>
+                  </button>
+                  <button class="phone-app-icon-button" type="button" data-phone-open-app="todos">
+                    <span class="phone-app-icon" aria-hidden="true">
+                      <img src="./icons/提醒事项-iOS-512x512.png" alt="" />
+                    </span>
+                    <span>待办</span>
+                  </button>
+                  <button class="phone-app-icon-button" type="button" data-phone-open-app="weather">
+                    <span class="phone-app-icon phone-weather-app-icon" aria-hidden="true">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="url(#weather-app-gradient)"/><circle cx="17" cy="17" r="7" fill="#FFD84D"/><path d="M15 33h20a7 7 0 0 0 0-14 10 10 0 0 0-18.7 3.6A5.3 5.3 0 0 0 15 33Z" fill="white"/><defs><linearGradient id="weather-app-gradient" x1="6" y1="4" x2="42" y2="45" gradientUnits="userSpaceOnUse"><stop stop-color="#62B8FF"/><stop offset="1" stop-color="#3477E8"/></linearGradient></defs></svg>
+                    </span>
+                    <span>天气</span>
+                  </button>
+                  <button class="phone-app-icon-button" type="button" data-phone-open-app="calendar">
+                    <span class="phone-app-icon calendar-icon" aria-hidden="true">
+                      <img src="./icons/日历.png" alt="" />
+                    </span>
+                    <span>日历</span>
+                  </button>
+                </div>
+              </div>
+              <button class="phone-lock-button" id="phone-lock-button" type="button" aria-label="锁定手机">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </button>
+            </div>
+
+            <div class="phone-app-window phone-browser-app" id="phone-browser-app" hidden>
+              <div class="phone-window-titlebar">
+                <button type="button" data-phone-home aria-label="返回手机桌面"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+                <strong>浏览器</strong>
+                <span></span>
+              </div>
+              <form class="phone-browser-search" id="phone-browser-search-form">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input id="phone-browser-search-input" type="search" maxlength="160" autocomplete="off" placeholder="搜索网页" />
+                <button type="submit">搜索</button>
+              </form>
+              <div class="phone-browser-state" id="phone-browser-state"></div>
+              <div class="phone-browser-history" id="phone-browser-history"></div>
+            </div>
+
+            <div class="phone-app-window phone-notes-app" id="phone-notes-app" hidden>
+              <div class="phone-window-titlebar">
+                <button type="button" data-phone-home aria-label="返回手机桌面"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+                <strong>备忘录</strong>
+                <span></span>
+              </div>
+              <div class="phone-notes-list" id="phone-notes-list"></div>
+            </div>
+
+            <div class="phone-app-window phone-todos-app" id="phone-todos-app" hidden>
+              <div class="phone-window-titlebar">
+                <button type="button" data-phone-home aria-label="返回手机桌面"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+                <strong>待办</strong>
+                <button id="open-todo-modal-button" type="button" aria-label="添加待办"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button>
+              </div>
+              <div class="phone-todo-content">
+                <div class="phone-todo-summary"><strong>ta 的安排</strong><span id="phone-todo-count">0 条</span></div>
+                <div class="phone-todo-list" id="phone-todo-list"></div>
+              </div>
+            </div>
+
+            <div class="phone-app-window phone-weather-app" id="phone-weather-app" hidden>
+              <div class="phone-window-titlebar">
+                <button type="button" data-phone-home aria-label="返回手机桌面"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+                <strong>天气</strong>
+                <span></span>
+              </div>
+              <div class="phone-weather-content">
+                <section class="phone-weather-panel" id="phone-weather-card">
+                  <span id="phone-weather-city">北京</span>
+                  <strong id="phone-weather-temp">--°</strong>
+                  <p id="phone-weather-meta">还没有配置天气</p>
+                </section>
+                <button class="phone-weather-action" id="phone-weather-refresh-button" type="button">更新天气</button>
+                <button class="phone-weather-action secondary" id="phone-weather-config-button" type="button">配置天气</button>
+              </div>
+            </div>
+
+            <div class="phone-app-window phone-calendar-app" id="phone-calendar-app" hidden>
+              <div class="phone-window-titlebar">
+                <button type="button" data-phone-home aria-label="返回手机桌面"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+                <strong>日历</strong><span></span>
+              </div>
+              <div class="phone-calendar-content">
+                <div class="phone-calendar-heading"><button id="phone-calendar-prev" type="button" aria-label="上个月">‹</button><strong id="phone-calendar-month"></strong><button id="phone-calendar-next" type="button" aria-label="下个月">›</button></div>
+                <div class="phone-calendar-week"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+                <div class="phone-calendar-grid" id="phone-calendar-grid"></div>
+                <div class="phone-calendar-events" id="phone-calendar-events"></div>
+              </div>
+            </div>
+
+            <div class="phone-app-window phone-settings-app" id="phone-settings-app" hidden>
+              <div class="phone-window-titlebar">
+                <button type="button" data-phone-home aria-label="返回手机桌面"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+                <strong>设置</strong>
+                <span></span>
+              </div>
+              <div class="phone-settings-content">
+                <section class="phone-settings-group">
+                  <span class="phone-settings-label">锁屏密码</span>
+                  <form id="phone-change-passcode-form">
+                    <input id="phone-current-passcode" type="password" inputmode="numeric" maxlength="4" placeholder="当前密码" autocomplete="off" />
+                    <input id="phone-new-passcode" type="password" inputmode="numeric" maxlength="4" placeholder="新密码（4 位数字）" autocomplete="off" />
+                    <button type="submit">更改密码</button>
+                  </form>
+                </section>
+                <section class="phone-settings-group">
+                  <span class="phone-settings-label">桌面背景</span>
+                  <div class="phone-wallpaper-options">
+                    <button type="button" data-phone-wallpaper="aurora" aria-label="使用极光背景"></button>
+                    <button type="button" data-phone-wallpaper="sunset" aria-label="使用暮色背景"></button>
+                    <button type="button" data-phone-wallpaper="graphite" aria-label="使用深灰背景"></button>
+                  </div>
+                  <input id="phone-wallpaper-input" type="file" accept="image/*" hidden />
+                  <div class="phone-wallpaper-photo-row">
+                    <button class="phone-wallpaper-upload" id="phone-wallpaper-upload-button" type="button">
+                      <span class="phone-wallpaper-photo-preview" id="phone-wallpaper-photo-preview" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                      </span>
+                      <span class="phone-wallpaper-upload-copy">
+                        <strong id="phone-wallpaper-upload-text">选择照片</strong>
+                        <small>从你的相册中选择</small>
+                      </span>
+                      <svg class="phone-wallpaper-chevron" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                    <button class="phone-wallpaper-remove" id="phone-wallpaper-remove-button" type="button" hidden>移除照片</button>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="inner-diary-view" aria-label="日记">
+          <div class="action-row">
+            <button class="primary-button" id="write-inner-diary-button" type="button">写日记</button>
+          </div>
+          <div class="inner-diary-list" id="inner-diary-list"></div>
+        </section>
+
+        <section class="view book-view" id="bookcase-view" aria-label="书架">
+          <input class="avatar-file-input" id="book-import-input" type="file" accept=".txt,text/plain" />
+          <input class="avatar-file-input" id="book-cover-input" type="file" accept="image/*" />
+          <div class="book-shelf-list" id="book-shelf-list"></div>
+        </section>
+
+        <section class="view book-view" id="book-reader-view" aria-label="正文">
+          <section class="book-reader-shell">
+            <div class="book-reader-topline">
+              <span class="book-reader-progress" id="book-reader-progress">第 1 段</span>
+              <div class="book-reader-actions">
+                <button class="book-reader-icon-button" id="book-reader-prev-button" type="button" aria-label="上一段">
+                  <svg class="is-previous" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h14"/>
+                    <path d="m12 5 7 7-7 7"/>
+                  </svg>
+                </button>
+                <button class="book-reader-icon-button" id="book-reader-next-button" type="button" aria-label="下一段">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h14"/>
+                    <path d="m12 5 7 7-7 7"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="book-reader-content" id="book-reader-content"></div>
+          </section>
+        </section>
+
+        <section class="view settings-view" id="persona-view" aria-label="设定">
+          <div class="avatar-settings">
+            <div class="avatar-editor">
+              <span>TA的头像</span>
+              <button class="avatar-preview" id="ai-avatar-preview" type="button" aria-label="更换 AI 头像"></button>
+              <input class="avatar-file-input" id="ai-avatar-input" type="file" accept="image/*" />
+              <button class="tiny-button" id="remove-ai-avatar-button" type="button">移除</button>
+            </div>
+            <div class="avatar-editor">
+              <span>你的头像</span>
+              <button class="avatar-preview" id="user-avatar-preview" type="button" aria-label="更换你的头像"></button>
+              <input class="avatar-file-input" id="user-avatar-input" type="file" accept="image/*" />
+              <button class="tiny-button" id="remove-user-avatar-button" type="button">移除</button>
+            </div>
+          </div>
+          <button class="profile-memory-entry" id="open-persona-core-button" type="button" aria-label="打开人设编辑">
+            <span class="profile-memory-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.925 20.056a6 6 0 0 0-11.851.001"/>
+                <circle cx="12" cy="11" r="4"/>
+                <circle cx="12" cy="12" r="10"/>
+              </svg>
+            </span>
+            <span class="profile-memory-main">
+              <span class="profile-memory-title">人设</span>
+            </span>
+          </button>
+          <button class="profile-memory-entry" id="open-memory-button" type="button" aria-label="打开 Memory 库">
+            <span class="profile-memory-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7.001 15.085A1.5 1.5 0 0 1 9 16.5"/>
+                <circle cx="18.5" cy="8.5" r="3.5"/>
+                <circle cx="7.5" cy="16.5" r="5.5"/>
+                <circle cx="7.5" cy="4.5" r="2.5"/>
+              </svg>
+            </span>
+            <span class="profile-memory-main">
+              <span class="profile-memory-title">Memory 库</span>
+            </span>
+          </button>
+          <button class="profile-memory-entry" id="open-persona-style-button" type="button" aria-label="打开对话风格参考编辑">
+            <span class="profile-memory-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 10a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 14.286V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                <path d="M20 9a2 2 0 0 1 2 2v10.286a.71.71 0 0 1-1.212.502l-2.202-2.202A2 2 0 0 0 17.172 19H10a2 2 0 0 1-2-2v-1"/>
+              </svg>
+            </span>
+            <span class="profile-memory-main">
+              <span class="profile-memory-title">对话风格参考</span>
+            </span>
+          </button>
+          <button class="profile-memory-entry" id="open-backup-button" type="button" aria-label="打开存档">
+            <span class="profile-memory-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.364 13.634a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506l4.013-4.009a1 1 0 0 0-3.004-3.004z"/>
+                <path d="M14.487 7.858A1 1 0 0 1 14 7V2"/>
+                <path d="M20 19.645V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l2.516 2.516"/>
+                <path d="M8 18h1"/>
+              </svg>
+            </span>
+            <span class="profile-memory-main">
+              <span class="profile-memory-title">存档</span>
+            </span>
+          </button>
+          <button class="profile-memory-entry" id="open-favorite-messages-button" type="button" aria-label="打开收藏消息">
+            <span class="profile-memory-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+              </svg>
+            </span>
+            <span class="profile-memory-main">
+              <span class="profile-memory-title">收藏消息</span>
+            </span>
+          </button>
+          <button class="profile-memory-entry" id="reset-phone-passcode-button" type="button" aria-label="紧急重置 ta 的手机密码">
+            <span class="profile-memory-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 1 0 3-6.7L3 8"/>
+                <path d="M3 3v5h5"/>
+                <rect x="9" y="11" width="6" height="5" rx="1"/>
+                <path d="M10.5 11V9.5a1.5 1.5 0 0 1 3 0V11"/>
+              </svg>
+            </span>
+            <span class="profile-memory-main">
+              <span class="profile-memory-title">手机紧急重置</span>
+              <span class="profile-memory-meta">无法进入时，将密码重置为 2580</span>
+            </span>
+          </button>
+        </section>
+
+        <section class="view settings-view" id="persona-core-view" aria-label="人设编辑">
+          <div class="memory-shell">
+            <label class="field">
+              <span>名字</span>
+              <input id="persona-name" type="text" placeholder="比如：小澪" />
+            </label>
+            <label class="field">
+              <span>人设</span>
+              <textarea id="persona-core" rows="14" placeholder="TA 是谁、怎么说话、和你的关系、喜欢什么..."></textarea>
+            </label>
+            <button class="primary-button full" id="save-persona-core-button" type="button">保存人设</button>
+          </div>
+        </section>
+
+        <section class="view settings-view" id="persona-style-view" aria-label="对话风格参考编辑">
+          <div class="memory-shell">
+            <label class="field">
+              <span>对话风格参考</span>
+              <textarea id="persona-style" rows="14" placeholder="把你喜欢的语气、用词、回复样例放在这里。AI 会参考风格，不会逐字照抄。"></textarea>
+            </label>
+            <button class="primary-button full" id="save-persona-style-button" type="button">保存风格参考</button>
+          </div>
+        </section>
+
+        <section class="view settings-view" id="backup-view" aria-label="存档">
+          <div class="memory-shell">
+            <input class="avatar-file-input" id="backup-import-input" type="file" accept=".json,application/json" />
+            <button class="profile-memory-entry" id="export-backup-button" type="button" aria-label="导出小屋存档">
+              <span class="profile-memory-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 7v14"/>
+                  <path d="m6 13 6-6 6 6"/>
+                  <path d="M19 3H5"/>
+                </svg>
+              </span>
+              <span class="profile-memory-main">
+                <span class="profile-memory-title">导出存档</span>
+              </span>
+            </button>
+            <button class="profile-memory-entry" id="import-backup-button" type="button" aria-label="导入小屋存档">
+              <span class="profile-memory-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 17V3"/>
+                  <path d="m6 11 6 6 6-6"/>
+                  <path d="M19 21H5"/>
+                </svg>
+              </span>
+              <span class="profile-memory-main">
+                <span class="profile-memory-title">导入存档</span>
+              </span>
+            </button>
+          </div>
+        </section>
+
+        <section class="view settings-view" id="favorite-messages-view" aria-label="收藏消息">
+          <div class="favorite-message-list" id="favorite-message-list"></div>
+        </section>
+
+        <section class="view settings-view" id="memory-view" aria-label="记忆库">
+          <div class="memory-shell memory-overview-grid">
+            <button class="memory-nav-entry" id="open-memory-always-view-button" type="button" aria-label="打开常驻记忆">
+              <span class="memory-nav-main">
+                <span class="memory-nav-title">常驻记忆</span>
+                <span class="memory-nav-meta" id="memory-always-overview-meta">还没有内容</span>
+              </span>
+              <span class="memory-nav-count" id="memory-always-overview-count">0</span>
+            </button>
+            <button class="memory-nav-entry" id="open-memory-core-view-button" type="button" aria-label="打开长期 Memory">
+              <span class="memory-nav-main">
+                <span class="memory-nav-title">长期 Memory</span>
+                <span class="memory-nav-meta" id="memory-core-overview-meta">0 条内容</span>
+              </span>
+              <span class="memory-nav-count" id="memory-core-overview-count">0</span>
+            </button>
+            <button class="memory-nav-entry" id="open-memory-events-view-button" type="button" aria-label="打开重要经历">
+              <span class="memory-nav-main">
+                <span class="memory-nav-title">重要经历</span>
+                <span class="memory-nav-meta" id="memory-events-overview-meta">0 条内容</span>
+              </span>
+              <span class="memory-nav-count" id="memory-events-overview-count">0</span>
+            </button>
+            <button class="memory-nav-entry" id="open-memory-journal-view-button" type="button" aria-label="打开最近 Journal">
+              <span class="memory-nav-main">
+                <span class="memory-nav-title">最近 Journal</span>
+                <span class="memory-nav-meta" id="memory-journal-overview-meta">0 条记录</span>
+              </span>
+              <span class="memory-nav-count" id="memory-journal-overview-count">0</span>
+            </button>
+            <button class="memory-nav-entry" id="open-memory-candidates-view-button" type="button" aria-label="打开自动整理记录" hidden>
+              <span class="memory-nav-main">
+                <span class="memory-nav-title">自动整理记录</span>
+                <span class="memory-nav-meta" id="memory-candidates-overview-meta">0 条结果</span>
+              </span>
+              <span class="memory-nav-count" id="memory-candidates-overview-count">0</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="view settings-view" id="memory-always-view" aria-label="常驻记忆">
+          <div class="memory-shell">
+            <label class="field">
+              <span>常驻记忆</span>
+              <textarea id="memory-always-input" rows="14" placeholder="把工作日作息、默认日常、固定提醒、长期相处习惯这些 AI 每次私聊都应该知道的内容放在这里。"></textarea>
+            </label>
+            <button class="primary-button full" id="save-memory-always-button" type="button">保存常驻记忆</button>
+          </div>
+        </section>
+
+        <section class="view settings-view" id="memory-core-view" aria-label="长期 Memory">
+          <div class="memory-shell">
+            <section class="memory-section">
+              <div class="section-heading">
+                <span>长期 Memory</span>
+                <button class="tiny-button" id="memory-add-core-button" type="button">新增</button>
+              </div>
+              <div class="memory-card-list" id="memory-core-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view settings-view" id="memory-events-view" aria-label="重要经历">
+          <div class="memory-shell">
+            <section class="memory-section">
+              <div class="section-heading">
+                <span>重要经历</span>
+                <button class="tiny-button" id="memory-add-event-button" type="button">新增</button>
+              </div>
+              <div class="memory-card-list" id="memory-event-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view settings-view" id="memory-journal-view" aria-label="最近 Journal">
+          <div class="memory-shell">
+            <section class="memory-section">
+              <div class="section-heading">
+                <span>最近 Journal</span>
+                <div class="memory-section-actions">
+                  <button class="tiny-button" id="create-journal-button" type="button">整理片段</button>
+                  <button class="tiny-button" form="journal-add-form" type="submit">添加</button>
+                </div>
+              </div>
+              <form class="memory-journal-form" id="journal-add-form">
+                <textarea id="journal-add-input" rows="3" placeholder="记一条最近发生的事，最好带日期和时间..."></textarea>
+              </form>
+              <div class="memory-journal-list" id="memory-journal-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view settings-view" id="memory-candidates-view" aria-label="自动整理记录">
+          <div class="memory-shell">
+            <section class="memory-section">
+              <div class="section-heading">
+                <span>自动整理记录</span>
+              </div>
+              <div class="memory-card-list" id="memory-candidate-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view settings-view" id="api-view" aria-label="API">
+          <fieldset class="segmented" aria-label="连接方式">
+            <label>
+              <input type="radio" name="api-mode" value="direct" id="api-mode-direct" />
+              <span>直连</span>
+            </label>
+            <label>
+              <input type="radio" name="api-mode" value="proxy" id="api-mode-proxy" />
+              <span>代理</span>
+            </label>
+          </fieldset>
+          <label class="field">
+            <span>API 地址</span>
+            <input id="api-base-url" type="text" inputmode="url" placeholder="https://api.openai.com/v1" />
+          </label>
+          <label class="field">
+            <span>API Key</span>
+            <input id="api-key" type="password" placeholder="sk-..." autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>模型</span>
+            <input id="api-model" type="text" placeholder="gpt-4.1-mini" />
+          </label>
+          <div class="split-fields">
+            <label class="field">
+              <span>温度</span>
+              <input id="api-temperature" type="number" min="0" max="2" step="0.1" />
+            </label>
+            <label class="field">
+              <span>最大输出</span>
+              <input id="api-max-tokens" type="number" min="128" step="128" />
+            </label>
+          </div>
+          <div class="api-tool-section">
+            <span class="api-tool-heading">工具调用</span>
+            <section class="api-tool-card" aria-label="工具调用">
+              <button class="tool-nav-entry" id="open-api-web-search-button" type="button" aria-label="打开网页搜索设置">
+                <span class="tool-toggle-copy">
+                  <span class="tool-toggle-title">网页搜索</span>
+                </span>
+                <span class="tool-nav-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </span>
+              </button>
+              <button class="tool-nav-entry" id="open-api-amap-button" type="button" aria-label="打开高德路线设置">
+                <span class="tool-toggle-copy">
+                  <span class="tool-toggle-title">高德路线</span>
+                </span>
+                <span class="tool-nav-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m9 18 6-6-6-6"/>
+                  </svg>
+                </span>
+              </button>
+              <button class="tool-nav-entry" id="open-api-notion-button" type="button" aria-label="打开 Notion 设置">
+                <span class="tool-toggle-copy">
+                  <span class="tool-toggle-title">Notion</span>
+                </span>
+                <span class="tool-nav-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m9 18 6-6-6-6"/>
+                  </svg>
+                </span>
+              </button>
+              <button class="tool-nav-entry" id="open-api-netease-button" type="button" aria-label="打开网易云音乐设置">
+                <span class="tool-toggle-copy">
+                  <span class="tool-toggle-title">网易云音乐</span>
+                </span>
+                <span class="tool-nav-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m9 18 6-6-6-6"/>
+                  </svg>
+                </span>
+              </button>
+              <button class="tool-nav-entry" id="open-api-voice-button" type="button" aria-label="打开 MiniMax 语音设置">
+                <span class="tool-toggle-copy">
+                  <span class="tool-toggle-title">MiniMax 语音</span>
+                </span>
+                <span class="tool-nav-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m9 18 6-6-6-6"/>
+                  </svg>
+                </span>
+              </button>
+            </section>
+          </div>
+          <div class="api-tool-section">
+            <span class="api-tool-heading">主动联系</span>
+            <section class="api-tool-card" aria-label="主动消息设置">
+              <label class="tool-toggle-card" for="api-proactive-enabled">
+                <span class="tool-toggle-copy">
+                  <span class="tool-toggle-title">主动消息</span>
+                  <span class="tool-toggle-meta">后台自动判断，合适时才会找你</span>
+                </span>
+                <input id="api-proactive-enabled" type="checkbox" />
+              </label>
+            </section>
+          </div>
+          <button class="primary-button full" id="save-api-button" type="button">保存 API</button>
+          <button class="ghost-button full" id="test-api-button" type="button">测试连接</button>
+          <button class="ghost-button full" id="check-update-button" type="button">检查更新</button>
+          <p class="hint">直连最简单；如果遇到跨域限制，部署到 Vercel 后可以切到代理。代理只转发请求，不保存 Key。</p>
+        </section>
+
+        <section class="view settings-view" id="api-web-search-view" aria-label="网页搜索设置">
+          <div class="memory-shell">
+            <section class="api-tool-card" aria-label="网页搜索设置">
+              <label class="tool-toggle-card" for="api-web-search-enabled">
+                <span class="tool-toggle-copy">
+                  <span class="tool-toggle-title">网页搜索</span>
+                </span>
+                <input id="api-web-search-enabled" type="checkbox" />
+              </label>
+              <div class="tool-config-grid" id="api-web-search-config" hidden>
+                <label class="field">
+                  <span>搜索服务</span>
+                  <select id="api-web-search-provider">
+                    <option value="tavily">Tavily</option>
+                    <option value="openrouter">OpenRouter</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>搜索 API 地址</span>
+                  <input id="api-web-search-base-url" type="text" inputmode="url" placeholder="https://api.tavily.com" />
+                </label>
+                <label class="field">
+                  <span id="api-web-search-key-label">Tavily API Key</span>
+                  <input id="api-web-search-key" type="password" placeholder="tvly-..." autocomplete="off" />
+                </label>
+                <label class="field" id="api-web-search-model-field" hidden>
+                  <span>搜索模型</span>
+                  <input id="api-web-search-model" type="text" placeholder="openrouter/auto" />
+                </label>
+                <button class="primary-button full" id="api-web-search-save-button" type="button">保存网页搜索设置</button>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view settings-view" id="api-amap-view" aria-label="高德路线设置">
+          <div class="memory-shell">
+            <section class="api-tool-card" aria-label="高德路线设置">
+              <label class="tool-toggle-card" for="api-amap-enabled">
+                <span class="tool-toggle-copy">
+                  <span class="tool-toggle-title">高德路线</span>
+                </span>
+                <input id="api-amap-enabled" type="checkbox" />
+              </label>
+              <div class="tool-config-grid" id="api-amap-config" hidden>
+                <label class="field">
+                  <span>高德 Key</span>
+                  <input id="api-amap-key" type="text" placeholder="高德 Web 服务 Key" />
+                </label>
+                <label class="field">
+                  <span>家</span>
+                  <input id="api-amap-home" type="text" placeholder="家的地址" />
+                </label>
+                <label class="field">
+                  <span>公司</span>
+                  <input id="api-amap-work" type="text" placeholder="公司的地址" />
+                </label>
+                <label class="field">
+                  <span>学校</span>
+                  <input id="api-amap-school" type="text" placeholder="学校的地址" />
+                </label>
+                <button class="primary-button full" id="api-amap-save-button" type="button">保存高德设置</button>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view settings-view" id="api-notion-view" aria-label="Notion 设置">
+          <div class="memory-shell">
+            <section class="api-tool-card" aria-label="Notion 设置">
+              <label class="tool-toggle-card" for="api-notion-enabled">
+                <span class="tool-toggle-copy">
+                  <span class="tool-toggle-title">Notion</span>
+                </span>
+                <input id="api-notion-enabled" type="checkbox" />
+              </label>
+              <div class="tool-config-grid" id="api-notion-config" hidden>
+                <label class="field">
+                  <span>Notion Token</span>
+                  <input id="api-notion-token" type="password" placeholder="留空则使用 Vercel 环境变量" autocomplete="off" />
+                </label>
+                <div class="notion-pages-config">
+                  <span class="notion-pages-title">常用页面</span>
+                  <div class="notion-page-list" id="api-notion-pages-list"></div>
+                  <button class="notion-page-add-button" id="api-notion-add-page-button" type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                    <span>添加页面</span>
+                  </button>
+                </div>
+                <button class="primary-button full" id="api-notion-save-button" type="button">保存 Notion 设置</button>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view settings-view" id="api-netease-view" aria-label="网易云音乐设置">
+          <div class="memory-shell">
+            <section class="api-tool-card" aria-label="网易云音乐设置">
+              <label class="tool-toggle-card" for="api-netease-enabled">
+                <span class="tool-toggle-copy">
+                  <span class="tool-toggle-title">网易云音乐</span>
+                </span>
+                <input id="api-netease-enabled" type="checkbox" />
+              </label>
+              <div class="tool-config-grid" id="api-netease-config" hidden>
+                <label class="field">
+                  <span>MUSIC_U</span>
+                  <input id="api-netease-music-u" type="password" autocomplete="off" />
+                </label>
+                <label class="field">
+                  <span>__csrf</span>
+                  <input id="api-netease-csrf" type="password" autocomplete="off" />
+                </label>
+                <label class="field">
+                  <span>一起听账号 MUSIC_U</span>
+                  <input id="api-netease-ai-music-u" type="password" autocomplete="off" />
+                </label>
+                <label class="field">
+                  <span>一起听账号 __csrf</span>
+                  <input id="api-netease-ai-csrf" type="password" autocomplete="off" />
+                </label>
+                <button class="primary-button full" id="api-netease-save-button" type="button">保存网易云设置</button>
+                <button class="ghost-button full" id="api-netease-test-button" type="button">测试连接</button>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view settings-view" id="api-voice-view" aria-label="MiniMax 语音设置">
+          <div class="memory-shell">
+            <section class="api-tool-card" aria-label="MiniMax 语音设置">
+              <label class="tool-toggle-card" for="api-voice-enabled">
+                <span class="tool-toggle-copy">
+                  <span class="tool-toggle-title">MiniMax 语音</span>
+                </span>
+                <input id="api-voice-enabled" type="checkbox" />
+              </label>
+              <div class="tool-config-grid" id="api-voice-config" hidden>
+                <label class="tool-toggle-card" for="api-voice-proactive-enabled">
+                  <span class="tool-toggle-copy">
+                    <span class="tool-toggle-title">主动语音</span>
+                  </span>
+                  <input id="api-voice-proactive-enabled" type="checkbox" />
+                </label>
+                <label class="field">
+                  <span>MiniMax Key</span>
+                  <input id="api-voice-key" type="password" placeholder="MiniMax API Key" autocomplete="off" />
+                </label>
+                <label class="field">
+                  <span>模型</span>
+                  <input id="api-voice-model" type="text" placeholder="speech-2.8-turbo" />
+                </label>
+                <label class="field">
+                  <span>Voice ID</span>
+                  <input id="api-voice-id" type="text" placeholder="MiniMax voice_id" />
+                </label>
+                <label class="field">
+                  <span>语速</span>
+                  <input id="api-voice-speed" type="number" min="0.5" max="2" step="0.1" />
+                </label>
+                <button class="primary-button full" id="api-voice-save-button" type="button">保存语音设置</button>
+                <div class="voice-clone-box">
+                  <span class="voice-clone-title">声音克隆</span>
+                  <label class="field">
+                    <span>新 Voice ID</span>
+                    <input id="api-voice-clone-id" type="text" placeholder="例如 sariel_voice_0711" />
+                  </label>
+                  <label class="field">
+                    <span>克隆音频</span>
+                    <input id="api-voice-clone-file" type="file" accept=".mp3,.m4a,.wav,audio/mpeg,audio/mp4,audio/wav" />
+                  </label>
+                  <label class="field">
+                    <span>已有 file_id</span>
+                    <input id="api-voice-clone-file-id" type="text" inputmode="numeric" placeholder="已经上传成功时填这里" />
+                  </label>
+                  <button class="ghost-button full" id="api-voice-clone-button" type="button">克隆声音</button>
+                  <p class="hint" id="api-voice-clone-status">这里是新建声音；成功后会自动填到上面的 Voice ID。音频和已有 file_id 二选一。</p>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+
+      <nav class="tabbar" aria-label="主导航">
+        <button class="tab is-active" data-view="chat" type="button" aria-label="聊天">
+          <span class="tab-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/>
+              <path d="M20 2v4"/>
+              <path d="M22 4h-4"/>
+              <circle cx="4" cy="20" r="2"/>
+            </svg>
+          </span>
+        </button>
+        <button class="tab" data-view="diary" type="button" aria-label="动态">
+          <span class="tab-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/>
+            </svg>
+          </span>
+        </button>
+        <button class="tab" data-view="home" type="button" aria-label="主页">
+          <span class="tab-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+              <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            </svg>
+          </span>
+        </button>
+        <button class="tab" data-view="persona" type="button" aria-label="设定">
+          <span class="tab-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M2 21a8 8 0 0 1 10.821-7.487"/>
+              <path d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/>
+              <circle cx="10" cy="8" r="5"/>
+            </svg>
+          </span>
+        </button>
+        <button class="tab" data-view="api" type="button" aria-label="API">
+          <span class="tab-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M11 17a4 4 0 0 1-8 0V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2Z"/>
+              <path d="M16.7 13H19a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H7"/>
+              <path d="M 7 17h.01"/>
+              <path d="m11 8 2.3-2.3a2.4 2.4 0 0 1 3.404.004L18.6 7.6a2.4 2.4 0 0 1 .026 3.434L9.9 19.8"/>
+            </svg>
+          </span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="modal-overlay" id="anniversary-modal" hidden>
+      <form class="modal-card" id="anniversary-form" role="dialog" aria-modal="true" aria-label="设置纪念日">
+        <div class="modal-title">设置纪念日</div>
+        <label class="field">
+          <span>事件名称</span>
+          <input id="anniversary-title-input" type="text" placeholder="比如：认识的日子" />
+        </label>
+        <label class="field">
+          <span>开始日期</span>
+          <input id="anniversary-date-input" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" />
+        </label>
+        <div class="modal-actions">
+          <button class="ghost-button" id="cancel-anniversary-button" type="button">取消</button>
+          <button class="primary-button" type="submit">保存</button>
+        </div>
+      </form>
+    </div>
+    <div class="modal-overlay memory-detail-overlay" id="memory-detail-modal" hidden>
+      <form class="modal-card memory-detail-sheet" id="memory-detail-form" role="dialog" aria-modal="true" aria-label="记忆详情">
+        <div class="moment-menu-handle" aria-hidden="true"></div>
+        <div class="modal-title">记忆详情</div>
+        <label class="field">
+          <span>标题</span>
+          <input id="memory-detail-title" type="text" maxlength="60" />
+        </label>
+        <label class="field">
+          <span>分类</span>
+          <input id="memory-detail-category" type="text" maxlength="40" placeholder="例如：routine / preference" />
+        </label>
+        <div class="memory-detail-options">
+          <label class="field">
+            <span>优先级</span>
+            <select id="memory-detail-priority">
+              <option value="high">高</option>
+              <option value="medium">中</option>
+              <option value="low">低</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>可信来源</span>
+            <select id="memory-detail-authority">
+              <option value="confirmed">确认</option>
+              <option value="derived">自动</option>
+              <option value="candidate">线索</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>带入方式</span>
+            <select id="memory-detail-inject-mode">
+              <option value="always">每次</option>
+              <option value="relevant">相关</option>
+              <option value="archive">存档</option>
+            </select>
+          </label>
+        </div>
+        <label class="field memory-detail-content-field">
+          <span>内容</span>
+          <textarea id="memory-detail-content" rows="6" placeholder="写这条长期记忆或重要经历..."></textarea>
+        </label>
+        <button class="memory-detail-delete" id="memory-detail-delete-button" type="button">删除这条记忆</button>
+        <div class="modal-actions">
+          <button class="ghost-button" id="cancel-memory-detail-button" type="button">取消</button>
+          <button class="primary-button" type="submit">保存</button>
+        </div>
+      </form>
+    </div>
+    <div class="modal-overlay" id="image-modal" hidden>
+      <form class="modal-card image-modal-card" id="image-form" role="dialog" aria-modal="true" aria-label="上传图片">
+        <div class="modal-title">上传图片</div>
+        <input class="avatar-file-input" id="chat-image-input" type="file" accept="image/*" />
+        <button class="image-picker" id="choose-chat-image-button" type="button">
+          <span id="chat-image-label">选择图片</span>
+        </button>
+        <img class="image-preview" id="chat-image-preview" alt="" hidden />
+        <label class="field image-caption-field">
+          <span>消息（可选）</span>
+          <textarea id="chat-image-caption" rows="2" maxlength="500"></textarea>
+        </label>
+        <div class="modal-actions">
+          <button class="ghost-button" id="cancel-image-button" type="button">取消</button>
+          <button class="primary-button" id="send-image-button" type="submit" disabled>发送</button>
+        </div>
+      </form>
+    </div>
+    <div class="modal-overlay" id="weather-modal" hidden>
+      <form class="modal-card" id="weather-form" role="dialog" aria-modal="true" aria-label="配置天气">
+        <div class="modal-title">配置天气</div>
+        <label class="field">
+          <span>城市</span>
+          <input id="weather-city-input" type="text" placeholder="北京" />
+        </label>
+        <label class="field">
+          <span>和风 API Key</span>
+          <input id="weather-key-input" type="password" autocomplete="off" />
+        </label>
+        <label class="field">
+          <span>API Host</span>
+          <input id="weather-host-input" type="text" placeholder="控制台里的 xxx.qweatherapi.com 域名" />
+        </label>
+        <div class="modal-actions">
+          <button class="ghost-button" id="cancel-weather-button" type="button">取消</button>
+          <button class="primary-button" type="submit">保存并更新</button>
+        </div>
+      </form>
+    </div>
+    <div class="modal-overlay" id="todo-modal" hidden>
+      <form class="modal-card" id="todo-form" role="dialog" aria-modal="true" aria-label="添加待办">
+        <div class="modal-title">添加待办</div>
+        <label class="field">
+          <span>待办内容</span>
+          <input id="todo-input" type="text" maxlength="40" placeholder="写一条待办..." />
+        </label>
+        <div class="modal-actions">
+          <button class="ghost-button" id="cancel-todo-button" type="button">取消</button>
+          <button class="primary-button" type="submit">添加</button>
+        </div>
+      </form>
+    </div>
+    <div class="modal-overlay moment-compose-overlay" id="user-moment-modal" hidden>
+      <form class="modal-card moment-modal-card" id="user-moment-form" role="dialog" aria-modal="true" aria-label="发布动态">
+        <div class="moment-menu-handle" aria-hidden="true"></div>
+        <div class="modal-title">发布动态</div>
+        <textarea id="user-moment-input" rows="1" maxlength="300"></textarea>
+        <input class="avatar-file-input" id="user-moment-image-input" type="file" accept="image/*" />
+        <div class="moment-compose-tools">
+          <button class="moment-image-picker" id="choose-user-moment-image-button" type="button" aria-label="添加图片" title="添加图片">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+              <circle cx="9" cy="9" r="2"/>
+              <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+            </svg>
+          </button>
+        </div>
+        <div class="moment-image-preview-wrap" id="user-moment-image-preview-wrap" hidden>
+          <img class="moment-image-preview" id="user-moment-image-preview" alt="" />
+          <button class="moment-image-remove" id="remove-user-moment-image-button" type="button" aria-label="移除图片" title="移除图片">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 6 6 18"/>
+              <path d="m6 6 12 12"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-actions">
+          <button class="ghost-button" id="cancel-user-moment-button" type="button">取消</button>
+          <button class="primary-button" type="submit">发布</button>
+        </div>
+      </form>
+    </div>
+    <div class="modal-overlay moment-menu-overlay" id="moment-menu-modal" hidden>
+      <div class="moment-menu-sheet" role="dialog" aria-modal="true" aria-label="动态操作">
+        <div class="moment-menu-handle" aria-hidden="true"></div>
+        <button class="moment-menu-delete" id="delete-moment-menu-button" type="button">
+          <span>删除动态</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+            <path d="M3 6h18"/>
+            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="modal-overlay inner-diary-export-overlay" id="inner-diary-export-modal" hidden>
+      <div class="inner-diary-export-sheet" role="dialog" aria-modal="true" aria-label="导出 Diary">
+        <div class="moment-menu-handle" aria-hidden="true"></div>
+        <div class="inner-diary-export-heading">
+          <strong>导出 Diary</strong>
+          <span>选择文件格式</span>
+        </div>
+        <button class="inner-diary-export-option" type="button" data-inner-diary-export-format="txt">
+          <span><strong>TXT</strong><small>纯文本文件</small></span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <button class="inner-diary-export-option" type="button" data-inner-diary-export-format="md">
+          <span><strong>Markdown</strong><small>.md 文件</small></span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <button class="inner-diary-export-cancel" id="cancel-inner-diary-export-button" type="button">取消</button>
+      </div>
+    </div>
+    <div class="modal-overlay deep-talk-overlay" id="deep-talk-modal" hidden>
+      <div class="deep-talk-sheet" role="dialog" aria-modal="true" aria-label="DeepTalk">
+        <div class="moment-menu-handle" aria-hidden="true"></div>
+        <div class="deep-talk-heading">
+          <strong>DeepTalk</strong>
+          <span>从一个词开始，慢慢聊开</span>
+        </div>
+        <div class="deep-talk-category" id="deep-talk-category">随机主题</div>
+        <div class="deep-talk-term" id="deep-talk-term">抽一个词</div>
+        <p class="deep-talk-definition" id="deep-talk-definition">每次抽到一个概念，再和 AI 一起把它聊明白。</p>
+        <div class="deep-talk-actions">
+          <button class="deep-talk-action" id="deep-talk-draw-button" type="button">换一个词</button>
+          <button class="deep-talk-action is-primary" id="deep-talk-ask-button" type="button">问问 AI</button>
+        </div>
+        <button class="deep-talk-end" id="deep-talk-close-button" type="button">结束 DeepTalk</button>
+      </div>
+    </div>
+    <div class="modal-overlay moment-image-viewer" id="moment-image-viewer" role="dialog" aria-modal="true" aria-label="查看动态图片" hidden>
+      <button class="moment-image-viewer-close" id="close-moment-image-viewer-button" type="button" aria-label="关闭大图">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M18 6 6 18"/>
+          <path d="m6 6 12 12"/>
+        </svg>
+      </button>
+      <img class="moment-image-viewer-image" id="moment-image-viewer-image" alt="动态大图" />
+    </div>
+    <div class="incoming-call-card" id="incoming-call-card" role="dialog" aria-label="等待接通" hidden>
+      <div class="incoming-call-avatar" id="incoming-call-avatar" aria-hidden="true"></div>
+      <div class="incoming-call-copy">
+        <strong id="incoming-call-name"></strong>
+        <span class="incoming-call-status"><span id="incoming-call-status-text">等待接通</span><span class="incoming-call-loading" aria-hidden="true"><i></i><i></i><i></i></span></span>
+      </div>
+      <button class="incoming-call-action decline" id="decline-call-button" type="button" aria-label="拒绝">
+        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.91.33 1.79.62 2.64a2 2 0 0 1-.45 2.11L8 9.74a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.64.62A2 2 0 0 1 22 16.92z" />
+        </svg>
+      </button>
+      <button class="incoming-call-action accept" id="accept-call-button" type="button" aria-label="接听">
+        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.91.33 1.79.62 2.64a2 2 0 0 1-.45 2.11L8 9.74a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.64.62A2 2 0 0 1 22 16.92z" />
+        </svg>
+      </button>
+    </div>
+    <button class="call-mini" id="call-mini" type="button" aria-label="返回通话" hidden>
+      <span class="call-mini-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/>
+        </svg>
+      </span>
+      <span id="call-mini-timer">00:00</span>
+    </button>
+    <div class="call-overlay" id="call-overlay" hidden>
+      <div class="call-panel" role="dialog" aria-modal="true" aria-label="通话">
+        <button class="call-minimize-button" id="minimize-call-button" type="button" aria-label="缩小通话">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m14 10 7-7"/>
+            <path d="M20 10h-6V4"/>
+            <path d="m3 21 7-7"/>
+            <path d="M4 14h6v6"/>
+          </svg>
+        </button>
+        <div class="call-avatars" aria-hidden="true">
+          <div class="call-live-log" id="call-live-log" hidden></div>
+          <div class="call-avatar" id="call-ai-avatar"></div>
+          <div class="call-avatar" id="call-user-avatar"></div>
+        </div>
+        <div class="call-state" id="call-state">通话中</div>
+        <div class="call-timer" id="call-timer">00:00</div>
+        <form class="composer call-composer" id="call-form" hidden>
+          <div class="composer-pill call-composer-pill">
+            <textarea id="call-input" rows="1" autocomplete="off"></textarea>
+            <button class="send-button" type="submit" aria-label="发送">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" />
+                <path d="m21.854 2.147-10.94 10.939" />
+              </svg>
+            </button>
+          </div>
+        </form>
+        <div class="call-actions">
+          <button class="call-control-button end" id="end-call-button" type="button" aria-label="挂断" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.91.33 1.79.62 2.64a2 2 0 0 1-.45 2.11L8 9.74a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.64.62A2 2 0 0 1 22 16.92z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="./app.js?v=599" type="module"></script>
+  </body>
+</html>
