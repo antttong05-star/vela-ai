@@ -1,9 +1,9 @@
-const CACHE_NAME = "vela-ai-v600";
+const CACHE_NAME = "vela-ai-v601";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=600",
-  "./app.js?v=600",
+  "./styles.css?v=601",
+  "./app.js?v=601",
   "./icons/chat-send-button.svg",
   "./icons/chat-sticker-button.svg",
   "./icons/chat-add-button.svg",

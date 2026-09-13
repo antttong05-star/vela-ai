@@ -3,7 +3,7 @@ const STATE_RECOVERY_KEY = "little-room-state-recovery-v1";
 const STICKER_THUMB_STORAGE_KEY = "little-room-sticker-thumbs-v2";
 const API_SETTINGS_BACKUP_KEY = "little-room-api-settings-backup-v1";
 const API_UPDATE_RECOVERY_KEY = "little-room-api-update-recovery-v1";
-const APP_VERSION = "600";
+const APP_VERSION = "601";
 const PROACTIVE_FIXED_CONFIG = Object.freeze({
   firstDelayHours: 4,
   followUpDelayHours: 4,
@@ -538,6 +538,17 @@ let phoneBrowserStatusText = "";
 let phoneCalendarCursor = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 let chatHeaderMenuCloseTimer = 0;
 let deepTalkState = { active: false, term: null };
+const POMODORO_MODES = Object.freeze({
+  focus: { seconds: 25 * 60, idleLabel: "准备专注", runningLabel: "专注中" },
+  short: { seconds: 5 * 60, idleLabel: "短暂休息", runningLabel: "休息中" },
+  long: { seconds: 15 * 60, idleLabel: "好好休息", runningLabel: "休息中" },
+});
+let pomodoroMode = "focus";
+let pomodoroRemaining = POMODORO_MODES.focus.seconds;
+let pomodoroRunning = false;
+let pomodoroEndAt = 0;
+let pomodoroTimer = 0;
+let pomodoroCompleted = Number(localStorage.getItem("vela-pomodoro-completed") || 0);
 const pendingBookNoteGenerations = new Set();
 
 const $ = (selector) => document.querySelector(selector);
@@ -633,10 +644,17 @@ const elements = {
   homeAiAvatar: $("#home-ai-avatar"),
   homeUserAvatar: $("#home-user-avatar"),
   homeDays: $("#home-days"),
-  openWebSearchButton: $("#open-web-search-button"),
   openCalendarButton: $("#open-calendar-button"),
   openTodoButton: $("#open-todo-button"),
   homeTodoMeta: $("#home-todo-meta"),
+  homeCalendarMonth: $("#home-calendar-month"),
+  homeCalendarGrid: $("#home-calendar-grid"),
+  pomodoroClock: $("#pomodoro-clock"),
+  pomodoroTime: $("#pomodoro-time"),
+  pomodoroStatus: $("#pomodoro-status"),
+  pomodoroRounds: $("#pomodoro-rounds"),
+  pomodoroToggleButton: $("#pomodoro-toggle-button"),
+  pomodoroResetButton: $("#pomodoro-reset-button"),
   phoneOs: $("#phone-os"),
   phoneLockScreen: $("#phone-lock-screen"),
   phoneDesktop: $("#phone-desktop"),
@@ -839,7 +857,7 @@ const viewTitles = {
   "contact-profile": "资料",
   "contact-moments": "个人 Moment",
   home: "Home",
-  "web-search": "Web Search",
+  pomodoro: "Focus",
   calendar: "Calendar",
   todo: "Todo",
   bookcase: "Book",
@@ -2209,8 +2227,8 @@ function refreshAppAfterStateChange() {
   renderPhone();
   renderBookShelf();
   renderBookReader();
-  renderDailyNote();
   renderTodoList();
+  renderPomodoro();
   renderInnerDiaries();
   renderMemoryOverview();
   renderApiToolSections();
@@ -2331,6 +2349,75 @@ function endDeepTalk() {
   closeDeepTalkSheet();
 }
 
+function renderPomodoro() {
+  if (!elements.pomodoroTime) return;
+  const config = POMODORO_MODES[pomodoroMode];
+  if (pomodoroRunning) pomodoroRemaining = Math.max(0, Math.ceil((pomodoroEndAt - Date.now()) / 1000));
+  const minutes = Math.floor(pomodoroRemaining / 60);
+  const seconds = pomodoroRemaining % 60;
+  const elapsed = config.seconds - pomodoroRemaining;
+  const progress = config.seconds ? Math.min(360, Math.max(0, (elapsed / config.seconds) * 360)) : 0;
+  elements.pomodoroTime.textContent = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  elements.pomodoroStatus.textContent = pomodoroRunning ? config.runningLabel : config.idleLabel;
+  elements.pomodoroRounds.textContent = `完成 ${pomodoroCompleted} 个番茄`;
+  elements.pomodoroToggleButton.textContent = pomodoroRunning ? "暂停" : "开始";
+  elements.pomodoroClock.style.setProperty("--pomodoro-progress", `${progress}deg`);
+  document.querySelectorAll("[data-pomodoro-mode]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.pomodoroMode === pomodoroMode);
+  });
+}
+
+function stopPomodoroTicker() {
+  window.clearInterval(pomodoroTimer);
+  pomodoroTimer = 0;
+}
+
+function tickPomodoro() {
+  if (!pomodoroRunning) return;
+  pomodoroRemaining = Math.max(0, Math.ceil((pomodoroEndAt - Date.now()) / 1000));
+  if (pomodoroRemaining > 0) {
+    renderPomodoro();
+    return;
+  }
+  pomodoroRunning = false;
+  stopPomodoroTicker();
+  if (pomodoroMode === "focus") {
+    pomodoroCompleted += 1;
+    localStorage.setItem("vela-pomodoro-completed", String(pomodoroCompleted));
+    showToast("专注完成，休息一下吧。" );
+  } else {
+    showToast("休息结束，准备好再开始。" );
+  }
+  renderPomodoro();
+}
+
+function togglePomodoro() {
+  if (pomodoroRunning) {
+    pomodoroRemaining = Math.max(0, Math.ceil((pomodoroEndAt - Date.now()) / 1000));
+    pomodoroRunning = false;
+    stopPomodoroTicker();
+  } else {
+    pomodoroRunning = true;
+    pomodoroEndAt = Date.now() + pomodoroRemaining * 1000;
+    stopPomodoroTicker();
+    pomodoroTimer = window.setInterval(tickPomodoro, 250);
+  }
+  renderPomodoro();
+}
+
+function resetPomodoro() {
+  pomodoroRunning = false;
+  stopPomodoroTicker();
+  pomodoroRemaining = POMODORO_MODES[pomodoroMode].seconds;
+  renderPomodoro();
+}
+
+function selectPomodoroMode(mode) {
+  if (!POMODORO_MODES[mode]) return;
+  pomodoroMode = mode;
+  resetPomodoro();
+}
+
 function askDeepTalk() {
   const term = deepTalkState.term;
   if (!term) return;
@@ -2355,7 +2442,7 @@ function switchView(viewName, { transition = "" } = {}) {
   const isMemoryView = viewName === "memory" || viewName.startsWith("memory-");
   const activeTabView = ["contact-profile", "contact-moments"].includes(viewName)
     ? "chat"
-    : ["inner-diary", "bookcase", "book-reader", "web-search", "calendar", "todo"].includes(viewName)
+    : ["inner-diary", "bookcase", "book-reader", "calendar", "todo"].includes(viewName)
       ? "home"
     : (isMemoryView || ["persona-core", "persona-style", "backup", "favorite-messages"].includes(viewName))
       ? "persona"
@@ -2377,11 +2464,12 @@ function switchView(viewName, { transition = "" } = {}) {
   elements.writeDiaryButton.hidden = viewName !== "diary";
   elements.openUserMomentHeaderButton.hidden = viewName !== "diary";
   elements.clearDiaryButton.hidden = viewName !== "diary";
-  elements.backHomeButton.hidden = !(["contact-profile", "contact-moments", "inner-diary", "bookcase", "book-reader", "web-search", "calendar", "todo", "memory", "persona-core", "persona-style", "backup", "favorite-messages", "api-web-search", "api-amap", "api-notion", "api-netease", "api-voice"].includes(viewName) || viewName.startsWith("memory-"));
+  elements.backHomeButton.hidden = !(["contact-profile", "contact-moments", "inner-diary", "bookcase", "book-reader", "calendar", "todo", "memory", "persona-core", "persona-style", "backup", "favorite-messages", "api-web-search", "api-amap", "api-notion", "api-netease", "api-voice"].includes(viewName) || viewName.startsWith("memory-"));
   elements.clearInnerDiaryButton.hidden = viewName !== "inner-diary";
   elements.exportInnerDiaryButton.hidden = viewName !== "inner-diary";
   elements.importBookHeaderButton.hidden = viewName !== "bookcase";
-  if (["web-search", "calendar", "todo"].includes(viewName)) renderPhone();
+  if (["calendar", "todo"].includes(viewName)) renderPhone();
+  if (viewName === "pomodoro") renderPomodoro();
 }
 
 function refreshAiStatus() {
@@ -2696,13 +2784,26 @@ function renderUserChatAvatar() {
 }
 
 function renderHomeAvatars() {
-  elements.homeAiAvatar.innerHTML = state.persona.aiAvatar
-    ? `<img src="${escapeAttribute(state.persona.aiAvatar)}" alt="" />`
-    : escapeHtml(avatarInitial());
-  elements.homeUserAvatar.innerHTML = state.persona.userAvatar
-    ? `<img src="${escapeAttribute(state.persona.userAvatar)}" alt="" />`
-    : "你";
-  renderHomeDays();
+  renderHomeCalendar();
+}
+
+function renderHomeCalendar() {
+  if (!elements.homeCalendarMonth || !elements.homeCalendarGrid) return;
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const pendingTodos = (state.phone?.todos || []).filter((item) => !item.done).length;
+  elements.homeCalendarMonth.textContent = `${year}年${month + 1}月`;
+  const blanks = Array.from({ length: firstDay }, () => '<span class="home-calendar-day is-empty" aria-hidden="true"></span>');
+  const days = Array.from({ length: daysInMonth }, (_, index) => {
+    const day = index + 1;
+    const isToday = day === today.getDate();
+    const hasTodo = isToday && pendingTodos > 0;
+    return `<span class="home-calendar-day${isToday ? " is-today" : ""}${hasTodo ? " has-todo" : ""}">${day}</span>`;
+  });
+  elements.homeCalendarGrid.innerHTML = [...blanks, ...days].join("");
 }
 
 function getPhoneDisplayName() {
@@ -2892,7 +2993,6 @@ function beginPhoneTransition(name, { origin = null, duration = 520, onComplete 
 
 function renderPhone() {
   state.phone = normalizePhoneState(state.phone);
-  renderPhoneBrowserHistory();
   renderTodoList();
   renderPhoneCalendar();
 }
@@ -4314,6 +4414,7 @@ function renderTodoList() {
   const pendingCount = todoItems.filter((item) => !item.done).length;
   elements.phoneTodoCount.textContent = todoItems.length ? `${pendingCount}/${todoItems.length}` : "0 条";
   if (elements.homeTodoMeta) elements.homeTodoMeta.textContent = `${pendingCount} 项待办`;
+  renderHomeCalendar();
   if (!todoItems.length) {
     elements.phoneTodoList.innerHTML = '<div class="phone-empty-state">还没有待办，添加一条开始吧</div>';
     return;
@@ -4700,7 +4801,7 @@ function renderContactMoments() {
 
 function renderDiaries() {
   state.diaries = state.diaries.map((entry) => normalizeDiaryEntry(entry));
-  renderMomentFeed(elements.diaryList, state.diaries);
+  if (elements.diaryList) renderMomentFeed(elements.diaryList, state.diaries);
   renderContactMoments();
 }
 
@@ -11723,7 +11824,6 @@ function registerEvents() {
     if (event.key === "Escape" && !elements.innerDiaryExportModal.hidden) closeInnerDiaryExport();
   });
   elements.writeDiaryButton.addEventListener("click", writeDiary);
-  elements.refreshNoteButton.addEventListener("click", forceRefreshDailyNote);
   elements.openTodoModalButton.addEventListener("click", openTodoModal);
   elements.todoForm.addEventListener("submit", addTodoItem);
   elements.cancelTodoButton.addEventListener("click", closeTodoModal);
@@ -11739,12 +11839,6 @@ function registerEvents() {
     const deleteButton = event.target.closest("[data-todo-delete]");
     if (deleteButton) deleteTodoItem(deleteButton.dataset.todoDelete);
   });
-  elements.setAnniversaryButton.addEventListener("click", openAnniversaryModal);
-  elements.anniversaryForm.addEventListener("submit", saveAnniversary);
-  elements.cancelAnniversaryButton.addEventListener("click", closeAnniversaryModal);
-  elements.anniversaryModal.addEventListener("click", (event) => {
-    if (event.target === elements.anniversaryModal) closeAnniversaryModal();
-  });
   elements.phoneCalendarPrev.addEventListener("click", () => {
     phoneCalendarCursor = new Date(phoneCalendarCursor.getFullYear(), phoneCalendarCursor.getMonth() - 1, 1);
     renderPhoneCalendar();
@@ -11753,10 +11847,13 @@ function registerEvents() {
     phoneCalendarCursor = new Date(phoneCalendarCursor.getFullYear(), phoneCalendarCursor.getMonth() + 1, 1);
     renderPhoneCalendar();
   });
-  elements.openWebSearchButton.addEventListener("click", () => switchView("web-search", { transition: "forward" }));
   elements.openCalendarButton.addEventListener("click", () => switchView("calendar", { transition: "forward" }));
   elements.openTodoButton.addEventListener("click", () => switchView("todo", { transition: "forward" }));
-  elements.phoneBrowserSearchForm.addEventListener("submit", handlePhoneBrowserSearch);
+  document.querySelectorAll("[data-pomodoro-mode]").forEach((button) => {
+    button.addEventListener("click", () => selectPomodoroMode(button.dataset.pomodoroMode));
+  });
+  elements.pomodoroToggleButton.addEventListener("click", togglePomodoro);
+  elements.pomodoroResetButton.addEventListener("click", resetPomodoro);
   elements.openInnerDiaryButton.addEventListener("click", () => switchView("inner-diary"));
   elements.openBookButton.addEventListener("click", openBookcase);
   elements.backHomeButton.addEventListener("click", handleBackNavigation);
@@ -11908,7 +12005,7 @@ function registerEvents() {
     handleMomentCommentSubmit(form);
   };
 
-  [elements.diaryList, elements.contactMomentList].forEach((list) => {
+  [elements.diaryList, elements.contactMomentList].filter(Boolean).forEach((list) => {
     list.addEventListener("click", handleMomentFeedClick);
     list.addEventListener("submit", handleMomentFeedSubmit);
   });
@@ -11924,6 +12021,7 @@ function registerEvents() {
       flushState();
       return;
     }
+    tickPomodoro();
     void pullProactiveMessages();
     queueProactiveSync(0);
   });
@@ -11953,8 +12051,8 @@ function init() {
   renderPhone();
   renderBookShelf();
   renderBookReader();
-  renderDailyNote();
   renderTodoList();
+  renderPomodoro();
   renderInnerDiaries();
   renderMemoryOverview();
   if (readApiUpdateRecovery()) persistApiState();
@@ -11963,7 +12061,6 @@ function init() {
   void initializeProactiveMessaging();
   prepareStickerThumbnails();
   if (!FRONTEND_DEMO_MODE) {
-    refreshDailyNote();
     scheduleNeteaseTogetherHeartbeat();
     scheduleJournalMidnightRefresh();
     if (hasUsableApiConfig()) void maybeRemindJournal();
