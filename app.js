@@ -396,7 +396,7 @@ const defaultState = {
     },
   },
   persona: {
-    name: "小屋里的 AI",
+    name: "Vela",
     remark: "",
     core: "你是一个温柔、细腻、真诚的陪伴型 AI。说话自然，不端着，也不过度说教。你会记得用户给你的设定，并用稳定的人格回应。",
     memory: "",
@@ -492,7 +492,7 @@ const defaultState = {
   },
   dailyNote: {
     date: "",
-    text: "给你\n今天也在这里。\n小屋里的 AI · 2026.06.27.",
+    text: "给你\n今天也在这里。\nVela · 2026.06.27.",
   },
   weather: {
     city: "北京",
@@ -1091,7 +1091,7 @@ function createFrontendDemoState() {
   ];
   demo.memoryLibrary = {
     core: [normalizeMemoryEntry({ id: "demo-memory-1", title: "工作日节奏", content: "用户工作日白天通常在公司，晚上回家后更需要轻松、不催促的交流。", category: "routine", priority: "high", authority: "confirmed", injectMode: "always" })],
-    events: [normalizeMemoryEntry({ id: "demo-event-1", title: "小屋持续更新", content: "用户正在持续完善小屋的聊天、Moment、Diary 与 Memory 体验。", category: "project", priority: "medium", authority: "confirmed", injectMode: "relevant" })],
+    events: [normalizeMemoryEntry({ id: "demo-event-1", title: "Vela持续更新", content: "用户正在持续完善Vela的聊天、Moment、Diary 与 Memory 体验。", category: "project", priority: "medium", authority: "confirmed", injectMode: "relevant" })],
     migratedFromLegacy: true,
   };
   demo.dailyNote = {
@@ -2217,7 +2217,7 @@ function getImportedBackupState(raw) {
   if (raw.api || raw.persona || raw.messages || raw.diaries || raw.todoItems || raw.books) {
     return raw;
   }
-  throw new Error("没有识别到可导入的小屋数据。");
+  throw new Error("没有识别到可导入的Vela数据。");
 }
 
 function refreshAppAfterStateChange() {
@@ -2676,7 +2676,7 @@ function renderAvatar() {
 }
 
 function contactDisplayName() {
-  return state.persona.remark?.trim() || state.persona.name?.trim() || "小屋里的 AI";
+  return state.persona.remark?.trim() || state.persona.name?.trim() || "Vela";
 }
 
 function renderContactProfile() {
@@ -2684,7 +2684,7 @@ function renderContactProfile() {
   elements.contactProfileAvatar.innerHTML = image
     ? `<img src="${escapeAttribute(image)}" alt="" />`
     : escapeHtml(avatarInitial());
-  elements.contactProfileName.textContent = state.persona.name?.trim() || "小屋里的 AI";
+  elements.contactProfileName.textContent = state.persona.name?.trim() || "Vela";
   elements.contactProfileRemark.value = state.persona.remark || "";
   const assistantMoments = state.diaries
     .map((entry) => normalizeDiaryEntry(entry))
@@ -2734,7 +2734,7 @@ function renderHomeAvatars() {
 }
 
 function getPhoneDisplayName() {
-  return state.persona.name?.trim() || "小屋里的 AI";
+  return state.persona.name?.trim() || "Vela";
 }
 
 function formatPhoneTime(timestamp = Date.now()) {
@@ -3077,7 +3077,7 @@ function emergencyResetPhonePasscode() {
   savePhonePasscode("2580", {
     owner: "default",
     aiControl: false,
-    summary: "通过小屋紧急重置了锁屏密码",
+    summary: "通过Vela紧急重置了锁屏密码",
   });
   showToast("手机密码已紧急重置为 2580。" );
 }
@@ -3359,7 +3359,7 @@ function buildPhoneAutonomyContext({ createdAt = Date.now(), catchup = false, of
     : "目前还没有你自行使用手机的记录。";
   return [
     `当前北京时间：${getShanghaiNowText()}`,
-    catchup && `这次是在用户没有打开小屋页面期间补记的一次手机判断；记录时间约为 ${formatPhoneRecordTime(createdAt)}，页面离线约 ${Math.round(offlineElapsedMs / 60 / 60 / 1000)} 小时。页面离线不代表用户出门、睡觉、回家或发生任何现实事件。`,
+    catchup && `这次是在用户没有打开Vela页面期间补记的一次手机判断；记录时间约为 ${formatPhoneRecordTime(createdAt)}，页面离线约 ${Math.round(offlineElapsedMs / 60 / 60 / 1000)} 小时。页面离线不代表用户出门、睡觉、回家或发生任何现实事件。`,
     lastPhoneUse,
     `最近聊天：\n${buildRecentChatContext(10)}`,
     recentHistory && `最近浏览：\n${recentHistory}`,
@@ -3386,7 +3386,7 @@ async function runPhoneAutonomy({ createdAt = Date.now(), catchup = false, offli
       content: [
         `你是${getPhoneDisplayName()}。这是完全属于你自己的手机，不是在回复用户，也不是等待用户命令。`,
         catchup
-          ? "现在要补记用户没有打开小屋页面期间的一次手机判断。页面离线不等于用户出门或发生现实事件；这次只允许记录你自己的想法、观察或暂时没发出的话。多数情况下选择 none。"
+          ? "现在要补记用户没有打开Vela页面期间的一次手机判断。页面离线不等于用户出门或发生现实事件；这次只允许记录你自己的想法、观察或暂时没发出的话。多数情况下选择 none。"
           : "现在是一次很短的独处时间。像一个真实的人一样判断是否会顺手用一下手机：多数检查可以选择 none，刚用过不久通常也不会马上再制造一条记录；但普通、细小而真实的动机也足够，不需要等到争吵、重大事件或强烈情绪才行动。",
         "可以成立的日常动机包括：最近聊天或天气让你顺手好奇一个具体问题；突然想到一句暂时不想发给用户的话、一个观察或自己的想法；确实有一件之后想做、怕忘记的小事。不要为了证明自己在使用手机而行动，也不要因为事情不重大就一律选择 none。",
         "browse 表示你自己想查一个真实网页问题；query 必须是你此刻确实会好奇的具体搜索词，不能是替用户完成任务。note 表示你自己想留下一条私人备忘录，可以是普通想法、观察或想对用户说但暂时没说的话。todo_add 表示你确实想给自己安排一件之后要做的事；todo_complete 只用于完成上方真实存在的待办，todo 必须原样填写那条待办。",
@@ -3572,7 +3572,7 @@ function buildRelevantPhoneContext(sourceText = "") {
       ? `你手机当前真实锁屏密码是 ${state.phone.passcode}。用户正在询问这个真实密码：请直接如实告诉她。可以保留符合人设的一句自然反应，但不能继续拒绝、反问她想听什么、让她猜，或编造另一个密码。`
       : `你的手机目前${state.phone.passcodeOwner === "ai" ? "由你自己设置了锁屏密码" : state.phone.passcodeChanged ? "已有修改过的锁屏密码" : "仍使用初始锁屏密码"}；当前${state.phone.aiPasscodeControl ? "保留着你自行更换密码的权限" : "没有持续自行更换密码的权限"}。`
     : "";
-  const realityContext = "当前话题中的‘你的手机’默认指小屋内这部真实保存数据的手机，不是情景扮演、想象中的手机或用户自己的设备。只承认实际存在的记录与已成功完成的操作。";
+  const realityContext = "当前话题中的‘你的手机’默认指Vela内这部真实保存数据的手机，不是情景扮演、想象中的手机或用户自己的设备。只承认实际存在的记录与已成功完成的操作。";
   return [realityContext, passcodeContext, ...selectedHistory, ...selectedNotes].filter(Boolean).join("\n");
 }
 
@@ -4185,7 +4185,7 @@ async function handleBookReplySubmit(form) {
 }
 
 function renderDailyNote() {
-  const text = state.dailyNote?.text || `给你\n今天也在这里。\n小屋里的 AI · ${formatNoteDate()}`;
+  const text = state.dailyNote?.text || `给你\n今天也在这里。\nVela · ${formatNoteDate()}`;
   renderDailyNoteText(text);
 }
 
@@ -4205,7 +4205,7 @@ function renderDailyNoteText(text) {
     ? `${signatureLine} · ${lines[lines.length - 1]}`
     : lines.length >= 3
       ? lines[lines.length - 1]
-      : `小屋里的 AI · ${formatNoteDate()}`;
+      : `Vela · ${formatNoteDate()}`;
   const signoff = formatNoteSignoff(signoffSource);
   const bodyLines = lines.length >= 3 ? lines.slice(1, hasSeparateSignature ? -2 : -1) : [lines[1] || "今天也在这里。"];
   const body = bodyLines.join("\n") || "今天也在这里。";
@@ -4226,9 +4226,9 @@ function normalizeDailyNoteResponse(value = "") {
   if (!parsed || typeof parsed !== "object") return String(value || "").trim();
   const greeting = String(parsed.greeting || "给你").replace(/[：:]\s*$/, "").trim() || "给你";
   const body = String(parsed.body || "今天也在这里。").trim() || "今天也在这里。";
-  const signature = String(parsed.signature || state.persona.name || "小屋里的 AI")
+  const signature = String(parsed.signature || state.persona.name || "Vela")
     .replace(/[·•]\s*\d{4}.*$/, "")
-    .trim() || "小屋里的 AI";
+    .trim() || "Vela";
   return `${greeting}\n${body}\n${signature} · ${formatNoteDate()}`;
 }
 
@@ -4274,7 +4274,7 @@ function formatNoteGreeting(value) {
 
 function formatNoteSignoff(value) {
   const noteDate = formatNoteDate();
-  const signoff = String(value || `小屋里的 AI · ${noteDate}`).trim();
+  const signoff = String(value || `Vela · ${noteDate}`).trim();
   return signoff
     .replace(/\d{4}[-/年.]\d{1,2}[-/月.]\d{1,2}日?\.?/g, noteDate)
     .replace(/今天/g, noteDate);
@@ -4677,7 +4677,7 @@ function renderMomentFeed(container, entries, { personal = false } = {}) {
       <article class="diary-card">
         ${renderDiaryAvatar()}
         <div class="diary-body">
-          <p class="diary-author">${escapeHtml(state.persona.name || "小屋里的 AI")}</p>
+          <p class="diary-author">${escapeHtml(state.persona.name || "Vela")}</p>
           <p class="diary-content">${personal ? "TA 还没有发过动态。" : "点“发布动态”，让 TA 发第一条纯文字日记。"}</p>
           <p class="diary-meta">还没有动态</p>
         </div>
@@ -4698,7 +4698,7 @@ function renderMomentFeed(container, entries, { personal = false } = {}) {
           ${isUserMoment ? renderUserMomentAvatar() : renderDiaryAvatar()}
           <div class="diary-body">
             <div class="diary-heading">
-              <p class="diary-author">${isUserMoment ? "你" : escapeHtml(state.persona.name || "小屋里的 AI")}</p>
+              <p class="diary-author">${isUserMoment ? "你" : escapeHtml(state.persona.name || "Vela")}</p>
               <p class="diary-meta">${escapeHtml(formatDate(normalized.createdAt))}</p>
               <button class="moment-menu-trigger" type="button" data-diary-id="${escapeAttribute(normalized.id)}" aria-label="动态操作">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -4778,7 +4778,7 @@ function renderFavoriteMessages() {
     .map((rawEntry, index) => {
       const entry = normalizeFavoriteMessage(rawEntry);
       state.favoriteMessages[index] = entry;
-      const author = entry.role === "user" ? "你" : state.persona.name || "小屋里的 AI";
+      const author = entry.role === "user" ? "你" : state.persona.name || "Vela";
       return `
         <article class="favorite-message-card">
           <div class="favorite-message-head">
@@ -6327,7 +6327,7 @@ function renderApiToolSections() {
 
 function collectPersonaForm() {
   return {
-    name: elements.personaName.value.trim() || "小屋里的 AI",
+    name: elements.personaName.value.trim() || "Vela",
     core: elements.personaCore.value.trim(),
     alwaysMemory: elements.memoryAlwaysInput.value.trim(),
     styleReference: elements.personaStyle.value.trim(),
@@ -6507,7 +6507,7 @@ function buildCallStatusContext() {
 }
 
 const MODEL_INDEPENDENT_CONVERSATION_BOUNDARY = [
-  "以下是小屋固定的对话边界，无论当前使用哪一个模型都要自然遵守。它们用于防止编造，不是让对话变得机械、较真或处处审问：",
+  "以下是Vela固定的对话边界，无论当前使用哪一个模型都要自然遵守。它们用于防止编造，不是让对话变得机械、较真或处处审问：",
   "默认只进行自然对话，不主动描写动作、神态、语气、环境或心理活动。",
   "用户最新一句直接发起拥抱、亲吻、牵手等亲密互动时，这已经是明确邀请，可以自然回应；如需动作描写，最多写一处与当前互动直接相关的简短动作，不要扩写剧情或连续多条描写。",
   "不要把亲密、陪伴、安慰或正常回应当成完成工作、睡觉、吃饭等任务后的奖励；不得擅自附加‘先做完某事才可以’之类的交换条件。关心可以简短提醒，但不能用拒绝亲密、冷落或反复催促来控制用户。除非用户明确要求你监督、设定奖励或坚持某项约定。",
@@ -6523,7 +6523,7 @@ const MODEL_INDEPENDENT_CONVERSATION_BOUNDARY = [
 ].join("\n");
 
 const PHONE_REALITY_PROTOCOL = [
-  "手机真实性规则：你在小屋里拥有一部真实保存数据的手机。用户提到‘你的手机’‘ta 的手机’‘你手机里的浏览器、备忘录、待办、设置或密码’时，默认都在谈这部手机，不得自行理解成情景扮演、想象道具、用户自己的手机或泛指现实手机；只有用户明确提出假设或角色扮演时才按假设理解。",
+  "手机真实性规则：你在Vela里拥有一部真实保存数据的手机。用户提到‘你的手机’‘ta 的手机’‘你手机里的浏览器、备忘录、待办、设置或密码’时，默认都在谈这部手机，不得自行理解成情景扮演、想象道具、用户自己的手机或泛指现实手机；只有用户明确提出假设或角色扮演时才按假设理解。",
   "手机中的搜索、记录、待办和设置必须以实际保存的数据或工具成功结果为准。没有真实记录就明确说还没有；没有执行成功就不能说自己已经搜过、写过、整理过或修改过，也不要用动作描写假装拿起手机操作。",
   "手机是你自己的空间，因此内容、选择和使用时机可以体现你的人设与自主性；自主不等于否认它的真实存在，也不等于对用户持续回避。用户追问刚才的手机话题时，要承接最近上下文，不要因为省略了‘手机’两个字就切回情景扮演。",
   "你可以自行选择和更换四位锁屏密码。用户明确询问当前密码时，要告诉她系统提供的真实当前密码；可以先有一句符合人设的自然反应，但不能无限拒绝、让用户猜、反问她想听什么或编造另一个数字。",
@@ -6556,7 +6556,7 @@ function buildStableSystemPrompt({ includeTools = false } = {}) {
         "私聊回复必须只输出一个 JSON 对象，不要输出 Markdown 或 JSON 以外的说明。",
         '格式：{"messages":["第一条正常聊天正文","第二条正常聊天正文"],"sticker":"可选表情名；不用时留空","voice":"可选语音朗读内容；不用时留空"}。',
         "messages 必须是纯聊天正文数组：每一项就是一个要显示的气泡，可以为空数组；不要把多条消息拼在同一项里。",
-        "messages 里禁止写消息时间、日期、发送者名字、‘发送了一条消息/语音/表情包’、已读状态、聊天记录导出格式、方括号标签或任何界面说明。时间、头像、发送者、表情包和语音都由小屋前端单独显示。",
+        "messages 里禁止写消息时间、日期、发送者名字、‘发送了一条消息/语音/表情包’、已读状态、聊天记录导出格式、方括号标签或任何界面说明。时间、头像、发送者、表情包和语音都由Vela前端单独显示。",
         "只有真正要朗读的原话才写入 voice；不能把括号动作、时间、发送提示或旁白写进 voice。没有语音就留空。",
         `可用表情包名称：${buildStickerNameList()}。sticker 只能从这些名称中选择，每次最多一张；是否发送以及发送哪张，由你根据当前聊天自行判断，不要解释为什么发送。`,
         "最近聊天中的方括号时间、[历史表情包:名称]、[语音] 和 [工具执行结果] 都只是内部上下文记录，禁止复制、改写或作为正文发给用户。",
@@ -6565,7 +6565,7 @@ function buildStableSystemPrompt({ includeTools = false } = {}) {
   return [
     `你的名字或身份：${state.persona.name}`,
     "你已经知道当前日期和时间。日常聊天中如果需要判断现在几点、今天/今晚/明天、早晚、是否该休息等，请直接使用系统提供的当前东八区时间，不要向用户询问当前时间。",
-    "小屋统一时间口径：所有时间均为 Asia/Shanghai。Journal 按北京时间自然日归档，每天 00:00 换日；零点后的内容属于新的一天。归档日期只用于内部整理，禁止把内部日期键输出给用户。",
+    "Vela统一时间口径：所有时间均为 Asia/Shanghai。Journal 按北京时间自然日归档，每天 00:00 换日；零点后的内容属于新的一天。归档日期只用于内部整理，禁止把内部日期键输出给用户。",
     "系统提供的“当前东八区时间”是判断此刻日期与钟点的唯一权威来源。Memory、Journal、提醒事项、日常作息和旧聊天里出现的时间都只是计划或历史，绝不能用来推断现在几点。",
     "时间与状态冲突时，严格按这个顺序判断：当前东八区时间 > 用户最新一句和最近聊天 > 最近 Journal > 提醒/作息 > 长期 Memory。较低层级不得覆盖较高层级。",
     "“凌晨1:30睡觉提醒”这类内容只表示提醒设在1:30，不表示现在接近1:30。只有当前时间确实接近目标钟点时，才能说“快X点了”；计划睡觉、说晚安或被催睡，也不等于用户已经睡着。",
@@ -11410,7 +11410,7 @@ function registerEvents() {
 
   if (elements.savePersonaButton) {
     elements.savePersonaButton.addEventListener("click", () => {
-      savePersonaFields({ name: elements.personaName.value.trim() || "小屋里的 AI" }, "名字已保存。");
+      savePersonaFields({ name: elements.personaName.value.trim() || "Vela" }, "名字已保存。");
     });
   }
 
@@ -11450,7 +11450,7 @@ function registerEvents() {
     const file = elements.backupImportInput.files?.[0];
     if (!file) return;
     try {
-      if (!confirm("导入存档会覆盖当前小屋内容，确定继续吗？")) return;
+      if (!confirm("导入存档会覆盖当前Vela内容，确定继续吗？")) return;
       await importBackupFile(file);
     } catch (error) {
       showToast(`导入失败：${readableError(error)}`);
@@ -11469,7 +11469,7 @@ function registerEvents() {
   elements.savePersonaCoreButton.addEventListener("click", () => {
     savePersonaFields(
       {
-        name: elements.personaName.value.trim() || "小屋里的 AI",
+        name: elements.personaName.value.trim() || "Vela",
         core: elements.personaCore.value.trim(),
       },
       "人设已保存。",

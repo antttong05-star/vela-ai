@@ -158,7 +158,7 @@ const server = http.createServer(async (nativeRequest, nativeResponse) => {
 });
 
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`小屋后端已启动：http://0.0.0.0:${PORT}`);
+  console.log(`Vela backend started: http://0.0.0.0:${PORT}`);
   startBackgroundSchedulers();
 });
 
@@ -184,7 +184,7 @@ async function startBackgroundSchedulers() {
     setInterval(async () => {
       await runProactive();
     }, PROACTIVE_TICK_INTERVAL);
-    console.log("小屋后台任务已开启：手机每天 09:00–次日 02:00、每 1 小时检查；主动消息每天 09:00–24:00、每 90 分钟检查。");
+    console.log("Vela background jobs started: phone checks every hour; proactive messages every 90 minutes during configured hours.");
   } catch (error) {
     console.error("后台任务初始化失败：", error?.message || error);
   }

@@ -1,4 +1,4 @@
-const CACHE_NAME = "little-room-v599";
+const CACHE_NAME = "vela-ai-v599";
 const ASSETS = [
   "./",
   "./index.html",
@@ -120,9 +120,9 @@ self.addEventListener("push", (event) => {
     const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     clients.forEach((client) => client.postMessage({ type: "PROACTIVE_MESSAGE", id: payload.id || "" }));
     if (clients.some((client) => client.visibilityState === "visible")) return;
-    await self.registration.showNotification(payload.title || "小屋", {
+    await self.registration.showNotification(payload.title || "Vela", {
       body: payload.body || "收到一条新消息。",
-      tag: payload.tag || "little-room-proactive",
+      tag: payload.tag || "vela-ai-proactive",
       icon: "./icons/icon-192.png",
       badge: "./icons/icon-192.png",
       data: { url: payload.url || "/?open=chat", id: payload.id || "" },

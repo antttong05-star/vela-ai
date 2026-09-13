@@ -1,7 +1,7 @@
 {
-  "name": "小屋",
-  "short_name": "小屋",
-  "description": "一个放在手机里的私人 AI 聊天小屋。",
+  "name": "Vela",
+  "short_name": "Vela",
+  "description": "Vela — your private AI assistant.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f7f7f7",

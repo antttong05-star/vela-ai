@@ -1,6 +1,6 @@
-# 小屋
+# Vela
 
-一个手机优先的私人 AI 聊天 PWA。
+一个手机优先的 Private AI Assistant PWA。
 
 ## 现在有什么
 
@@ -78,7 +78,7 @@ UPSTASH_REDIS_REST_URL
 UPSTASH_REDIS_REST_TOKEN
 ```
 
-如果 Vercel 自动提供的是 `KV_REST_API_URL` 和 `KV_REST_API_TOKEN`，小屋也能直接识别。
+如果 Vercel 自动提供的是 `KV_REST_API_URL` 和 `KV_REST_API_TOKEN`，Vela 也能直接识别。
 
 ### 2. 生成通知密钥
 
@@ -118,8 +118,8 @@ https://你的域名/api/proactive-tick?secret=你的CRON_SECRET
 
 ### 4. 在手机开启
 
-1. 用 iPhone Safari 打开小屋并“添加到主屏幕”。
-2. 从主屏幕打开小屋。
+1. 用 iPhone Safari 打开 Vela 并“添加到主屏幕”。
+2. 从主屏幕打开 Vela。
 3. 进入 API 页面，打开“主动消息”。
 4. 调整等待时间、每天上限和免打扰时段。
 5. 点“开启手机通知”，允许系统通知，再点“保存 API”。
