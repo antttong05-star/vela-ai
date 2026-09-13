@@ -2908,7 +2908,7 @@ button.chat-avatar {
 .pomodoro-mode-tabs button.is-active {
   background: #ffffff;
   color: var(--ink);
-  box-shadow: 0 0.2rem 0.8rem rgba(39, 35, 31, 0.08);
+  box-shadow: none;
 }
 
 .pomodoro-clock {
@@ -2920,7 +2920,7 @@ button.chat-avatar {
   border-radius: 50%;
   background: conic-gradient(#171515 var(--pomodoro-progress), #e4e4e4 0);
   padding: 0.45rem;
-  box-shadow: 0 1.2rem 3rem rgba(39, 35, 31, 0.08);
+  box-shadow: none;
 }
 
 .pomodoro-clock-inner {
@@ -2942,7 +2942,7 @@ button.chat-avatar {
 .pomodoro-clock-inner strong {
   margin: 0.45rem 0;
   font-size: clamp(3rem, 11vw, 4.35rem);
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: -0.08em;
   line-height: 1;
 }

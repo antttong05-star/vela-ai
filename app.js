@@ -3,7 +3,7 @@ const STATE_RECOVERY_KEY = "little-room-state-recovery-v1";
 const STICKER_THUMB_STORAGE_KEY = "little-room-sticker-thumbs-v2";
 const API_SETTINGS_BACKUP_KEY = "little-room-api-settings-backup-v1";
 const API_UPDATE_RECOVERY_KEY = "little-room-api-update-recovery-v1";
-const APP_VERSION = "601";
+const APP_VERSION = "602";
 const PROACTIVE_FIXED_CONFIG = Object.freeze({
   firstDelayHours: 4,
   followUpDelayHours: 4,
@@ -2577,7 +2577,6 @@ function renderMessageBubble(message, index, role, type) {
       <div class="voice-message-line">
         ${bubbleHtml}
         ${renderVoiceTranscriptToggle(message, index)}
-        ${renderVoiceFavoriteToggle(message, index)}
       </div>
       ${renderVoiceTranscript(message)}
     </div>
@@ -2686,14 +2685,8 @@ function renderVoiceTranscript(message) {
 }
 
 function renderMessageActions(message, index) {
-  const isFavorite = isMessageFavorited(message);
   return `
     <div class="message-actions">
-      <button class="${isFavorite ? "is-favorite" : ""}" type="button" data-message-action="favorite" data-message-index="${index}" aria-label="${isFavorite ? "取消收藏" : "收藏消息"}">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="${isFavorite ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>
-        </svg>
-      </button>
       <button type="button" data-message-action="delete" data-message-index="${index}" aria-label="删除消息">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
@@ -4746,7 +4739,6 @@ function renderMomentFeed(container, entries, { personal = false } = {}) {
   container.innerHTML = entries
     .map((normalized) => {
       const isUserMoment = normalized.author === "user";
-      const isFavoriteMoment = isDiaryFavorited(normalized);
       const imageHtml = normalized.image
         ? `<button class="moment-post-image-trigger" type="button" data-diary-id="${escapeAttribute(normalized.id)}" aria-label="查看动态大图"><img class="moment-post-image" src="${escapeAttribute(normalized.image)}" alt="动态图片" loading="lazy" decoding="async" /></button>`
         : "";
@@ -4777,11 +4769,6 @@ function renderMomentFeed(container, entries, { personal = false } = {}) {
                 <button class="comment-toggle" type="button" data-diary-id="${escapeAttribute(normalized.id)}" aria-label="评论">
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719" />
-                  </svg>
-                </button>
-                <button class="moment-favorite${isFavoriteMoment ? " is-favorite" : ""}" type="button" data-diary-id="${escapeAttribute(normalized.id)}" aria-label="${isFavoriteMoment ? "取消收藏动态" : "收藏动态"}" aria-pressed="${isFavoriteMoment ? "true" : "false"}">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="${isFavoriteMoment ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>
                   </svg>
                 </button>
               </div>
@@ -6340,12 +6327,16 @@ function isOpenRouterBaseUrl(value = "") {
 
 
 function renderAvatarPreviews() {
-  elements.aiAvatarPreview.innerHTML = state.persona.aiAvatar
-    ? `<img src="${escapeAttribute(state.persona.aiAvatar)}" alt="" />`
-    : escapeHtml(avatarInitial());
-  elements.userAvatarPreview.innerHTML = state.persona.userAvatar
-    ? `<img src="${escapeAttribute(state.persona.userAvatar)}" alt="" />`
-    : "你";
+  if (elements.aiAvatarPreview) {
+    elements.aiAvatarPreview.innerHTML = state.persona.aiAvatar
+      ? `<img src="${escapeAttribute(state.persona.aiAvatar)}" alt="" />`
+      : escapeHtml(avatarInitial());
+  }
+  if (elements.userAvatarPreview) {
+    elements.userAvatarPreview.innerHTML = state.persona.userAvatar
+      ? `<img src="${escapeAttribute(state.persona.userAvatar)}" alt="" />`
+      : "你";
+  }
   renderCallIdentity();
 }
 
@@ -11463,32 +11454,6 @@ function registerEvents() {
   elements.openPersonaCoreButton.addEventListener("click", () => switchView("persona-core"));
   elements.openPersonaStyleButton.addEventListener("click", () => switchView("persona-style"));
   elements.openBackupButton.addEventListener("click", () => switchView("backup"));
-  elements.openFavoriteMessagesButton.addEventListener("click", () => {
-    renderFavoriteMessages();
-    switchView("favorite-messages");
-  });
-  elements.favoriteMessageList.addEventListener("click", (event) => {
-    const voiceButton = event.target.closest("[data-favorite-voice-id]");
-    if (voiceButton) {
-      playFavoriteVoiceMessage(voiceButton.dataset.favoriteVoiceId);
-      return;
-    }
-
-    const button = event.target.closest("[data-favorite-message-id]");
-    if (!button) return;
-    if (activeFavoriteVoiceId === button.dataset.favoriteMessageId && activeFavoriteVoiceAudio) {
-      activeFavoriteVoiceAudio.pause();
-      activeFavoriteVoiceAudio.currentTime = 0;
-      activeFavoriteVoiceAudio = null;
-      activeFavoriteVoiceId = "";
-    }
-    state.favoriteMessages = state.favoriteMessages.filter((entry) => entry.id !== button.dataset.favoriteMessageId);
-    saveState({ immediate: true });
-    renderFavoriteMessages();
-    renderMessages();
-    renderDiaries();
-    showToast("已取消收藏。");
-  });
   elements.exportBackupButton.addEventListener("click", exportBackup);
   elements.importBackupButton.addEventListener("click", () => elements.backupImportInput.click());
   elements.backupImportInput.addEventListener("change", async () => {
@@ -11619,64 +11584,6 @@ function registerEvents() {
       nextRetryAt: 0,
     });
     saveState();
-  });
-
-  elements.aiAvatarInput.addEventListener("change", async () => {
-    try {
-      state.persona.aiAvatar = await readImageFile(elements.aiAvatarInput.files?.[0]);
-      saveState();
-      renderAvatarPreviews();
-      renderHomeAvatars();
-      renderMessages();
-      renderDiaries();
-      showToast("AI 头像已更新。");
-    } catch (error) {
-      showToast(readableError(error));
-    } finally {
-      elements.aiAvatarInput.value = "";
-    }
-  });
-
-  elements.aiAvatarPreview.addEventListener("click", () => {
-    elements.aiAvatarInput.click();
-  });
-
-  elements.removeAiAvatarButton.addEventListener("click", () => {
-    state.persona.aiAvatar = "";
-    saveState();
-    renderAvatarPreviews();
-    renderHomeAvatars();
-    renderMessages();
-    renderDiaries();
-    showToast("AI 头像已移除。");
-  });
-
-  elements.userAvatarInput.addEventListener("change", async () => {
-    try {
-      state.persona.userAvatar = await readImageFile(elements.userAvatarInput.files?.[0]);
-      saveState();
-      renderAvatarPreviews();
-      renderHomeAvatars();
-      renderDiaries();
-      showToast("你的头像已更新。");
-    } catch (error) {
-      showToast(readableError(error));
-    } finally {
-      elements.userAvatarInput.value = "";
-    }
-  });
-
-  elements.userAvatarPreview.addEventListener("click", () => {
-    elements.userAvatarInput.click();
-  });
-
-  elements.removeUserAvatarButton.addEventListener("click", () => {
-    state.persona.userAvatar = "";
-    saveState();
-    renderAvatarPreviews();
-    renderHomeAvatars();
-    renderDiaries();
-    showToast("你的头像已移除。");
   });
 
   [

@@ -9,7 +9,7 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png" />
-  <link rel="stylesheet" href="./styles.css?v=601" />
+  <link rel="stylesheet" href="./styles.css?v=602" />
   </head>
   <body>
     <div class="app-shell">
@@ -308,20 +308,6 @@
         </section>
 
         <section class="view settings-view" id="persona-view" aria-label="设定">
-          <div class="avatar-settings">
-            <div class="avatar-editor">
-              <span>TA的头像</span>
-              <button class="avatar-preview" id="ai-avatar-preview" type="button" aria-label="更换 AI 头像"></button>
-              <input class="avatar-file-input" id="ai-avatar-input" type="file" accept="image/*" />
-              <button class="tiny-button" id="remove-ai-avatar-button" type="button">移除</button>
-            </div>
-            <div class="avatar-editor">
-              <span>你的头像</span>
-              <button class="avatar-preview" id="user-avatar-preview" type="button" aria-label="更换你的头像"></button>
-              <input class="avatar-file-input" id="user-avatar-input" type="file" accept="image/*" />
-              <button class="tiny-button" id="remove-user-avatar-button" type="button">移除</button>
-            </div>
-          </div>
           <button class="profile-memory-entry" id="open-persona-core-button" type="button" aria-label="打开人设编辑">
             <span class="profile-memory-icon" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -369,16 +355,6 @@
             </span>
             <span class="profile-memory-main">
               <span class="profile-memory-title">存档</span>
-            </span>
-          </button>
-          <button class="profile-memory-entry" id="open-favorite-messages-button" type="button" aria-label="打开收藏消息">
-            <span class="profile-memory-icon" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-              </svg>
-            </span>
-            <span class="profile-memory-main">
-              <span class="profile-memory-title">收藏消息</span>
             </span>
           </button>
         </section>
@@ -435,10 +411,6 @@
               </span>
             </button>
           </div>
-        </section>
-
-        <section class="view settings-view" id="favorite-messages-view" aria-label="收藏消息">
-          <div class="favorite-message-list" id="favorite-message-list"></div>
         </section>
 
         <section class="view settings-view" id="memory-view" aria-label="记忆库">
@@ -1148,6 +1120,6 @@
         </div>
       </div>
     </div>
-    <script src="./app.js?v=601" type="module"></script>
+    <script src="./app.js?v=602" type="module"></script>
   </body>
 </html>
