@@ -1,9 +1,9 @@
-const CACHE_NAME = "vela-ai-v599";
+const CACHE_NAME = "vela-ai-v600";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=599",
-  "./app.js?v=599",
+  "./styles.css?v=600",
+  "./app.js?v=600",
   "./icons/chat-send-button.svg",
   "./icons/chat-sticker-button.svg",
   "./icons/chat-add-button.svg",
@@ -13,11 +13,6 @@ const ASSETS = [
   "./fonts/MiSans-Semibold.woff2",
   "./fonts/MiSans-Bold.woff2",
   "./fonts/MiSans-Heavy.woff2",
-  "./icons/%E6%B5%8F%E8%A7%88%E5%99%A8.png",
-  "./icons/%E5%A4%87%E5%BF%98%E5%BD%95.png",
-  "./icons/%E8%AE%BE%E7%BD%AE%20png.png",
-  "./icons/%E6%8F%90%E9%86%92%E4%BA%8B%E9%A1%B9-iOS-512x512.png",
-  "./icons/%E6%97%A5%E5%8E%86.png",
   "./YunFengHanChanTi/YunFengHanChanTi-2.ttf",
   "./image/%E4%B8%8D%E8%A1%8C.jpg",
   "./image/%E4%BA%BA%E5%91%A2.jpg",

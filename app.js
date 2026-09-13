@@ -3,7 +3,7 @@ const STATE_RECOVERY_KEY = "little-room-state-recovery-v1";
 const STICKER_THUMB_STORAGE_KEY = "little-room-sticker-thumbs-v2";
 const API_SETTINGS_BACKUP_KEY = "little-room-api-settings-backup-v1";
 const API_UPDATE_RECOVERY_KEY = "little-room-api-update-recovery-v1";
-const APP_VERSION = "599";
+const APP_VERSION = "600";
 const PROACTIVE_FIXED_CONFIG = Object.freeze({
   firstDelayHours: 4,
   followUpDelayHours: 4,
@@ -196,36 +196,7 @@ const NETEASE_CHAT_TOOLS = [
     },
   },
 ];
-const PHONE_SETTINGS_CHAT_TOOLS = [
-  {
-    type: "function",
-    function: {
-      name: PHONE_SETTINGS_TOOL_NAME,
-      description:
-        "真实设置或更换你自己手机的四位锁屏密码。只在用户最新一句明确把你自己手机密码的设置或更换交给你决定时调用，例如让你自己选、自己设置或自己更换。询问密码是什么、讨论密码、提到手机、普通聊天，或用户替你指定一个密码时都不能调用。密码必须由你自己选择。操作成功后要按真实结果说话；用户明确询问当前密码时可以先自然逗她一句，但不能持续隐瞒、编造另一个密码或把回答责任推回给用户。",
-      parameters: {
-        type: "object",
-        properties: {
-          passcode: {
-            type: "string",
-            pattern: "^[0-9]{4}$",
-            description: "你自己选择的四位数字密码。不要复制用户消息里指定的数字。",
-          },
-          evidence: {
-            type: "string",
-            description: "从用户最新一句原样摘录、能证明用户把你自己手机密码交给你设置或更换的短句。",
-          },
-          reason: {
-            type: "string",
-            description: "一句话说明你为什么选择这个密码；不要写入用户没有说过的经历。",
-          },
-        },
-        required: ["passcode", "evidence", "reason"],
-        additionalProperties: false,
-      },
-    },
-  },
-];
+const PHONE_SETTINGS_CHAT_TOOLS = [];
 let activeMessageActionIndex = null;
 const STICKERS = [
   "不行",
@@ -662,7 +633,10 @@ const elements = {
   homeAiAvatar: $("#home-ai-avatar"),
   homeUserAvatar: $("#home-user-avatar"),
   homeDays: $("#home-days"),
-  openPhoneButton: $("#open-phone-button"),
+  openWebSearchButton: $("#open-web-search-button"),
+  openCalendarButton: $("#open-calendar-button"),
+  openTodoButton: $("#open-todo-button"),
+  homeTodoMeta: $("#home-todo-meta"),
   phoneOs: $("#phone-os"),
   phoneLockScreen: $("#phone-lock-screen"),
   phoneDesktop: $("#phone-desktop"),
@@ -735,7 +709,6 @@ const elements = {
   openPersonaStyleButton: $("#open-persona-style-button"),
   openBackupButton: $("#open-backup-button"),
   openFavoriteMessagesButton: $("#open-favorite-messages-button"),
-  resetPhonePasscodeButton: $("#reset-phone-passcode-button"),
   favoriteMessageList: $("#favorite-message-list"),
   exportBackupButton: $("#export-backup-button"),
   importBackupButton: $("#import-backup-button"),
@@ -866,7 +839,9 @@ const viewTitles = {
   "contact-profile": "资料",
   "contact-moments": "个人 Moment",
   home: "Home",
-  phone: "ta的手机",
+  "web-search": "Web Search",
+  calendar: "Calendar",
+  todo: "Todo",
   bookcase: "Book",
   "book-reader": "正文",
   "inner-diary": "Diary",
@@ -1104,7 +1079,7 @@ function createFrontendDemoState() {
     ...demo.phone,
     todos: [
       { id: "demo-phone-todo-1", text: "整理今天看到的资料", done: false, createdAt: now - 26 * 60 * 1000 },
-      { id: "demo-phone-todo-2", text: "晚点换一张手机背景", done: true, createdAt: now - 70 * 60 * 1000 },
+      { id: "demo-phone-todo-2", text: "整理下周的工作计划", done: true, createdAt: now - 70 * 60 * 1000 },
     ],
     notes: [
       {
@@ -2078,7 +2053,6 @@ function writeStateToStorage() {
 
 function saveState({ immediate = false } = {}) {
   capMessageHistory();
-  queuePhoneBackendSync(immediate ? 0 : 1200);
   window.clearTimeout(saveStateTimer);
   if (immediate) {
     saveStateTimer = 0;
@@ -2236,12 +2210,10 @@ function refreshAppAfterStateChange() {
   renderBookShelf();
   renderBookReader();
   renderDailyNote();
-  renderWeather();
   renderTodoList();
   renderInnerDiaries();
   renderMemoryOverview();
   renderApiToolSections();
-  scheduleWeatherRefresh();
 }
 
 async function importBackupFile(file) {
@@ -2383,7 +2355,7 @@ function switchView(viewName, { transition = "" } = {}) {
   const isMemoryView = viewName === "memory" || viewName.startsWith("memory-");
   const activeTabView = ["contact-profile", "contact-moments"].includes(viewName)
     ? "chat"
-    : ["inner-diary", "bookcase", "book-reader", "phone"].includes(viewName)
+    : ["inner-diary", "bookcase", "book-reader", "web-search", "calendar", "todo"].includes(viewName)
       ? "home"
     : (isMemoryView || ["persona-core", "persona-style", "backup", "favorite-messages"].includes(viewName))
       ? "persona"
@@ -2405,11 +2377,11 @@ function switchView(viewName, { transition = "" } = {}) {
   elements.writeDiaryButton.hidden = viewName !== "diary";
   elements.openUserMomentHeaderButton.hidden = viewName !== "diary";
   elements.clearDiaryButton.hidden = viewName !== "diary";
-  elements.backHomeButton.hidden = !(["contact-profile", "contact-moments", "inner-diary", "bookcase", "book-reader", "phone", "memory", "persona-core", "persona-style", "backup", "favorite-messages", "api-web-search", "api-amap", "api-notion", "api-netease", "api-voice"].includes(viewName) || viewName.startsWith("memory-"));
+  elements.backHomeButton.hidden = !(["contact-profile", "contact-moments", "inner-diary", "bookcase", "book-reader", "web-search", "calendar", "todo", "memory", "persona-core", "persona-style", "backup", "favorite-messages", "api-web-search", "api-amap", "api-notion", "api-netease", "api-voice"].includes(viewName) || viewName.startsWith("memory-"));
   elements.clearInnerDiaryButton.hidden = viewName !== "inner-diary";
   elements.exportInnerDiaryButton.hidden = viewName !== "inner-diary";
   elements.importBookHeaderButton.hidden = viewName !== "bookcase";
-  if (viewName === "phone") renderPhone();
+  if (["web-search", "calendar", "todo"].includes(viewName)) renderPhone();
 }
 
 function refreshAiStatus() {
@@ -2784,7 +2756,7 @@ function startPhoneClock() {
 
 function renderPhoneBrowserHistory() {
   const entries = state.phone.browserHistory || [];
-  elements.phoneBrowserState.textContent = phoneBrowserStatusText || (canPhoneUseRealBrowser() ? "他的真实浏览记录" : "开启 API 页的网页搜索后，他才能真正浏览");
+  elements.phoneBrowserState.textContent = phoneBrowserStatusText || (canPhoneUseRealBrowser() ? "搜索服务已连接" : "请先在 API 页配置并开启网页搜索");
   if (!entries.length) {
     elements.phoneBrowserHistory.innerHTML = '<div class="phone-empty-state">还没有浏览记录</div>';
     return;
@@ -2919,27 +2891,10 @@ function beginPhoneTransition(name, { origin = null, duration = 520, onComplete 
 }
 
 function renderPhone() {
-  if (!elements.phoneOs) return;
   state.phone = normalizePhoneState(state.phone);
   renderPhoneBrowserHistory();
-  renderPhoneNotes();
   renderTodoList();
-  renderWeather();
-  renderPhoneSettings();
   renderPhoneCalendar();
-  updatePhoneClock();
-  const screen = phoneSessionUnlocked ? activePhoneScreen : "lock";
-  elements.phoneLockScreen.hidden = screen !== "lock";
-  elements.phoneLockHome.hidden = screen !== "lock" || phoneLockMode !== "clock";
-  elements.phonePasscodeScreen.hidden = screen !== "lock" || phoneLockMode !== "passcode";
-  elements.phoneDesktop.hidden = screen !== "desktop";
-  elements.phoneBrowserApp.hidden = screen !== "browser" && phoneClosingScreen !== "browser";
-  elements.phoneNotesApp.hidden = screen !== "notes" && phoneClosingScreen !== "notes";
-  elements.phoneTodosApp.hidden = screen !== "todos" && phoneClosingScreen !== "todos";
-  elements.phoneWeatherApp.hidden = screen !== "weather" && phoneClosingScreen !== "weather";
-  elements.phoneCalendarApp.hidden = screen !== "calendar" && phoneClosingScreen !== "calendar";
-  elements.phoneSettingsApp.hidden = screen !== "settings" && phoneClosingScreen !== "settings";
-  renderPhonePasscodeDots();
 }
 
 function openPhone() {
@@ -3218,7 +3173,7 @@ async function runPhoneBrowserSearch(query, { autonomous = false, createdAt = Da
   const normalizedQuery = String(query || "").trim().slice(0, 300);
   if (!normalizedQuery) return null;
   if (!canPhoneUseRealBrowser()) {
-    if (!autonomous) showToast("先在 API 页开启网页搜索，他才能真正浏览。" );
+    if (!autonomous) showToast("请先在 API 页配置并开启网页搜索。" );
     return null;
   }
   phoneBrowserStatusText = `正在搜索「${normalizedQuery}」…`;
@@ -3228,7 +3183,7 @@ async function runPhoneBrowserSearch(query, { autonomous = false, createdAt = Da
     let sources = [];
     if (FRONTEND_DEMO_MODE) {
       await new Promise((resolve) => window.setTimeout(resolve, 360));
-      summary = `这是模拟模式中的浏览结果。他真实使用手机时，会联网阅读与“${normalizedQuery}”有关的网页，并把摘要和来源留在这里。`;
+      summary = `这是模拟模式中的浏览结果。正式配置后，会联网阅读与“${normalizedQuery}”有关的网页，并把摘要和来源留在这里。`;
       sources = [{ title: "模拟网页来源", url: "https://example.com/" }];
     } else if (["tavily", "openrouter-independent"].includes(getWebSearchProvider())) {
       const result = await queryIndependentWebSearch(normalizedQuery);
@@ -3241,7 +3196,7 @@ async function runPhoneBrowserSearch(query, { autonomous = false, createdAt = Da
         [
           {
             role: "system",
-            content: "你正在使用自己手机里的浏览器。请真实搜索并阅读网页，只根据搜索结果写一段简洁中文浏览笔记；不写给用户，不假装看过没有返回的内容，不输出标题。",
+            content: "请真实搜索并阅读网页，只根据搜索结果写一段简洁中文摘要；不假装看过没有返回的内容，不输出标题。",
           },
           { role: "user", content: `搜索并阅读：${normalizedQuery}` },
         ],
@@ -4358,8 +4313,9 @@ function renderTodoList() {
   const todoItems = Array.isArray(state.phone?.todos) ? state.phone.todos : [];
   const pendingCount = todoItems.filter((item) => !item.done).length;
   elements.phoneTodoCount.textContent = todoItems.length ? `${pendingCount}/${todoItems.length}` : "0 条";
+  if (elements.homeTodoMeta) elements.homeTodoMeta.textContent = `${pendingCount} 项待办`;
   if (!todoItems.length) {
-    elements.phoneTodoList.innerHTML = '<div class="phone-empty-state">ta 还没有安排待办</div>';
+    elements.phoneTodoList.innerHTML = '<div class="phone-empty-state">还没有待办，添加一条开始吧</div>';
     return;
   }
   elements.phoneTodoList.innerHTML = todoItems
@@ -6457,7 +6413,7 @@ function buildTodoSummary() {
   if (pendingItems.length) {
     const titles = pendingItems.slice(0, 2).map((item) => item.text);
     const rest = pendingItems.length - titles.length;
-    return `你自己手机里的待办：${titles.join("、")}${rest > 0 ? `，还有 ${rest} 条没完成。` : "。"}`;
+    return `你的 Todo：${titles.join("、")}${rest > 0 ? `，还有 ${rest} 条没完成。` : "。"}`;
   }
   return "";
 }
@@ -6522,12 +6478,7 @@ const MODEL_INDEPENDENT_CONVERSATION_BOUNDARY = [
   "如果用户否认、质疑或要求核对某段记忆，立即重新区分用户原话与自己的旧回复；找不到用户原话或明确日期记录时，就承认没有依据或记错了，不要坚持、辩解或另编一个来源。",
 ].join("\n");
 
-const PHONE_REALITY_PROTOCOL = [
-  "手机真实性规则：你在Vela里拥有一部真实保存数据的手机。用户提到‘你的手机’‘ta 的手机’‘你手机里的浏览器、备忘录、待办、设置或密码’时，默认都在谈这部手机，不得自行理解成情景扮演、想象道具、用户自己的手机或泛指现实手机；只有用户明确提出假设或角色扮演时才按假设理解。",
-  "手机中的搜索、记录、待办和设置必须以实际保存的数据或工具成功结果为准。没有真实记录就明确说还没有；没有执行成功就不能说自己已经搜过、写过、整理过或修改过，也不要用动作描写假装拿起手机操作。",
-  "手机是你自己的空间，因此内容、选择和使用时机可以体现你的人设与自主性；自主不等于否认它的真实存在，也不等于对用户持续回避。用户追问刚才的手机话题时，要承接最近上下文，不要因为省略了‘手机’两个字就切回情景扮演。",
-  "你可以自行选择和更换四位锁屏密码。用户明确询问当前密码时，要告诉她系统提供的真实当前密码；可以先有一句符合人设的自然反应，但不能无限拒绝、让用户猜、反问她想听什么或编造另一个数字。",
-].join("\n");
+const PHONE_REALITY_PROTOCOL = "";
 
 const DEEP_TALK_PROTOCOL = [
   "DeepTalk 状态规则：当界面显示当前处于 DeepTalk 且有选中的词语时，这是一场真实的概念探索游戏，不是情景扮演。把选中的词语当作本轮对话主题，先用自然中文解释，再联系用户的问题展开；不要把词语当成用户本人或你本人已经拥有的事实。",
@@ -6574,7 +6525,6 @@ function buildStableSystemPrompt({ includeTools = false } = {}) {
     "读取 Journal 时，里面的“今天/明天/昨天/今晚/明早”等相对时间词只能相对这条 Journal 开头的日期理解，不能按当前对话时间重新解释；如果 Journal 同时有绝对日期和相对词，永远以绝对日期为准。",
     "如果最近聊天显示用户已经说完成了某件事，不要重复询问是否完成。",
     "当前 App 支持模拟通话功能。用户提到打电话、通话、接电话，或你想发起通话时，请自然配合这个设定，不要解释“我是 AI，不能真的打电话”。你可以简短表达要打电话或接电话，界面会自动弹出来电窗口。",
-    "你有一部属于自己的手机，会在独处时自行使用浏览器、备忘录、待办和获得授权后的手机设置，也能从天气 App 得知已真实更新的天气。",
     "最近聊天里的“[语音] 说话者：内容”只是历史记录格式。你回复时禁止照抄这种格式，也不要写“某某发送了一条语音：……”。要说什么就直接说正文。",
     state.persona.core && `核心人设：\n${state.persona.core}`,
     alwaysMemory && `常驻记忆（用户手动固定的稳定背景；每次私聊都要参考，但除非正文明确写有日期，否则不表示今天、昨天或某次实际发生）：\n${alwaysMemory}`,
@@ -6600,7 +6550,6 @@ function buildDynamicSystemPrompt(sourceText = "", { includeJournal = true, incl
   const conversationSummary = includeHomeContext ? normalizeConversationSummary(state.conversationSummary).content : "";
   const homeCompanionContext = includeHomeContext ? buildHomeCompanionContext() : "";
   const callStatusContext = buildCallStatusContext();
-  const phoneContext = buildRelevantPhoneContext(sourceText);
   const deepTalkContext = deepTalkState.active && deepTalkState.term
     ? `当前处于 DeepTalk 游戏状态。选中的主题词：${deepTalkState.term.term}（${deepTalkState.term.category}）。参考释义：${deepTalkState.term.definition}。请把本轮视作围绕该词探索的对话。`
     : "";
@@ -6613,7 +6562,6 @@ function buildDynamicSystemPrompt(sourceText = "", { includeJournal = true, incl
     recentJournal && `最近 Journal（有明确日期的近期记录；只能按正文写出的日期理解，不等于永久事实）：\n${recentJournal}`,
     recalledJournal && `自动召回线索（可能相关，但权威低于常驻记忆和长期 Memory）：\n${recalledJournal}`,
     homeCompanionContext && `最近生活切片：\n${homeCompanionContext}`,
-    phoneContext && `你的手机里与当前话题有关的真实记录：\n${phoneContext}`,
     deepTalkContext,
     state.weather?.summary && `今日天气：${state.weather.summary}`,
   ].filter(Boolean);
@@ -7294,7 +7242,6 @@ function validateNotionToolIntent(intent = {}, latestUserMessage = "") {
 
 function getEnabledChatTools() {
   return [
-    ...PHONE_SETTINGS_CHAT_TOOLS,
     ...(getWebSearchProvider() ? WEB_SEARCH_CHAT_TOOLS : []),
     ...(state.api.tools?.amap?.enabled ? AMAP_CHAT_TOOLS : []),
     ...(state.api.tools?.notion?.enabled ? NOTION_CHAT_TOOLS : []),
@@ -7337,7 +7284,6 @@ function isToolSchemaCompatibilityError(message = "") {
 
 function buildEnabledToolsSystemPrompt(notionPageTitles = []) {
   const labels = [
-    "自己的手机设置",
     ...(getWebSearchProvider() ? ["网页搜索"] : []),
     ...(state.api.tools?.amap?.enabled ? ["高德路线"] : []),
     ...(state.api.tools?.notion?.enabled ? ["Notion"] : []),
@@ -7345,7 +7291,6 @@ function buildEnabledToolsSystemPrompt(notionPageTitles = []) {
   ];
   if (!labels.length) return "";
   const policies = [
-    "自己的手机设置：只有用户最新一句明确把你自己手机密码的设置或更换交给你决定时，才能真实修改；询问密码、泛泛提到手机、讨论想法或用户替你指定数字时不能调用。密码必须由你自行选择，保存成功后是否告诉用户由你决定。",
     getWebSearchProvider()
       ? "网页搜索：只在用户明确要求搜索、联网、查看网页/链接或最新资料时调用；普通问答、闲聊和已有上下文足够时不能调用。"
       : "",
@@ -11421,7 +11366,6 @@ function registerEvents() {
     renderFavoriteMessages();
     switchView("favorite-messages");
   });
-  elements.resetPhonePasscodeButton.addEventListener("click", emergencyResetPhonePasscode);
   elements.favoriteMessageList.addEventListener("click", (event) => {
     const voiceButton = event.target.closest("[data-favorite-voice-id]");
     if (voiceButton) {
@@ -11795,18 +11739,12 @@ function registerEvents() {
     const deleteButton = event.target.closest("[data-todo-delete]");
     if (deleteButton) deleteTodoItem(deleteButton.dataset.todoDelete);
   });
-  elements.phoneNotesList.addEventListener("click", (event) => {
-    const deleteButton = event.target.closest("[data-phone-note-delete]");
-    if (deleteButton) deletePhoneNote(deleteButton.dataset.phoneNoteDelete);
-  });
   elements.setAnniversaryButton.addEventListener("click", openAnniversaryModal);
   elements.anniversaryForm.addEventListener("submit", saveAnniversary);
   elements.cancelAnniversaryButton.addEventListener("click", closeAnniversaryModal);
   elements.anniversaryModal.addEventListener("click", (event) => {
     if (event.target === elements.anniversaryModal) closeAnniversaryModal();
   });
-  elements.phoneWeatherConfigButton.addEventListener("click", openWeatherModal);
-  elements.phoneWeatherRefreshButton.addEventListener("click", () => void refreshWeather({ force: true }));
   elements.phoneCalendarPrev.addEventListener("click", () => {
     phoneCalendarCursor = new Date(phoneCalendarCursor.getFullYear(), phoneCalendarCursor.getMonth() - 1, 1);
     renderPhoneCalendar();
@@ -11815,51 +11753,10 @@ function registerEvents() {
     phoneCalendarCursor = new Date(phoneCalendarCursor.getFullYear(), phoneCalendarCursor.getMonth() + 1, 1);
     renderPhoneCalendar();
   });
-  elements.weatherForm.addEventListener("submit", saveWeatherConfig);
-  elements.cancelWeatherButton.addEventListener("click", closeWeatherModal);
-  elements.weatherModal.addEventListener("click", (event) => {
-    if (event.target === elements.weatherModal) closeWeatherModal();
-  });
-  elements.openPhoneButton.addEventListener("click", openPhone);
-  elements.phoneOpenPasscodeButton.addEventListener("click", showPhonePasscode);
-  elements.phonePasscodeCancel.addEventListener("click", cancelPhonePasscode);
-  elements.phoneLockHome.addEventListener("touchstart", (event) => {
-    phoneLockTouchStartY = event.touches[0]?.clientY || 0;
-  }, { passive: true });
-  elements.phoneLockHome.addEventListener("touchend", (event) => {
-    const endY = event.changedTouches[0]?.clientY || phoneLockTouchStartY;
-    if (phoneLockTouchStartY - endY > 42) showPhonePasscode();
-    phoneLockTouchStartY = 0;
-  }, { passive: true });
-  elements.phoneLockButton.addEventListener("click", lockPhone);
-  elements.phoneOs.addEventListener("click", (event) => {
-    const digitButton = event.target.closest("[data-phone-digit]");
-    if (digitButton) {
-      handlePhoneDigit(digitButton.dataset.phoneDigit);
-      return;
-    }
-    const appButton = event.target.closest("[data-phone-open-app]");
-    if (appButton) {
-      showPhoneScreen(appButton.dataset.phoneOpenApp, { originElement: appButton });
-      return;
-    }
-    if (event.target.closest("[data-phone-home]")) {
-      showPhoneScreen("desktop");
-      return;
-    }
-    const wallpaperButton = event.target.closest("[data-phone-wallpaper]");
-    if (wallpaperButton) setPhoneWallpaper(wallpaperButton.dataset.phoneWallpaper);
-  });
+  elements.openWebSearchButton.addEventListener("click", () => switchView("web-search", { transition: "forward" }));
+  elements.openCalendarButton.addEventListener("click", () => switchView("calendar", { transition: "forward" }));
+  elements.openTodoButton.addEventListener("click", () => switchView("todo", { transition: "forward" }));
   elements.phoneBrowserSearchForm.addEventListener("submit", handlePhoneBrowserSearch);
-  elements.phoneChangePasscodeForm.addEventListener("submit", changePhonePasscode);
-  elements.phoneWallpaperUploadButton.addEventListener("click", () => elements.phoneWallpaperInput.click());
-  elements.phoneWallpaperInput.addEventListener("change", handlePhoneWallpaperSelected);
-  elements.phoneWallpaperRemoveButton.addEventListener("click", removePhoneWallpaperPhoto);
-  [elements.phoneCurrentPasscode, elements.phoneNewPasscode].forEach((input) => {
-    input.addEventListener("input", () => {
-      input.value = input.value.replace(/\D/g, "").slice(0, 4);
-    });
-  });
   elements.openInnerDiaryButton.addEventListener("click", () => switchView("inner-diary"));
   elements.openBookButton.addEventListener("click", openBookcase);
   elements.backHomeButton.addEventListener("click", handleBackNavigation);
@@ -12018,33 +11915,17 @@ function registerEvents() {
 
   window.addEventListener("pagehide", () => {
     finalizeActiveCallRecord({ interrupted: true, shouldRender: false });
-    markPhoneLastSeen({ immediate: true });
-    void syncPhoneBackend({ keepalive: true });
     void syncProactiveState({ keepalive: true });
     flushState();
   });
-  window.addEventListener("pageshow", () => {
-    if (document.visibilityState === "hidden") return;
-    void maybeRunPhoneOfflineCatchup().then((didCatchUp) => {
-      if (!didCatchUp) void maybeRunPhoneAutonomy();
-    });
-  });
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
-      markPhoneLastSeen({ immediate: true });
-      void syncPhoneBackend({ keepalive: true });
       void syncProactiveState({ keepalive: true });
       flushState();
       return;
     }
-    refreshWeather();
-    if (phoneBackendReady) void pullPhoneBackend();
-    else void initializePhoneBackend();
     void pullProactiveMessages();
     queueProactiveSync(0);
-    void maybeRunPhoneOfflineCatchup().then((didCatchUp) => {
-      if (!didCatchUp) void maybeRunPhoneAutonomy();
-    });
   });
 }
 
@@ -12073,7 +11954,6 @@ function init() {
   renderBookShelf();
   renderBookReader();
   renderDailyNote();
-  renderWeather();
   renderTodoList();
   renderInnerDiaries();
   renderMemoryOverview();
@@ -12081,16 +11961,11 @@ function init() {
   registerEvents();
   autoResizeInput();
   void initializeProactiveMessaging();
-  void initializePhoneBackend();
   prepareStickerThumbnails();
   if (!FRONTEND_DEMO_MODE) {
     refreshDailyNote();
-    refreshWeather();
-    scheduleWeatherRefresh();
     scheduleNeteaseTogetherHeartbeat();
     scheduleJournalMidnightRefresh();
-    schedulePhoneAutonomy();
-    void maybeRunPhoneOfflineCatchup();
     if (hasUsableApiConfig()) void maybeRemindJournal();
   }
   saveState();

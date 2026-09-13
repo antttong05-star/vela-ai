@@ -1373,6 +1373,165 @@ button.chat-avatar {
   height: 1rem;
 }
 
+.home-productivity-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.72rem;
+}
+
+.home-tool-card {
+  display: grid;
+  align-content: space-between;
+  gap: 0.9rem;
+  min-width: 0;
+  min-height: 7.4rem;
+  border: 1px solid rgba(39, 35, 31, 0.08);
+  border-radius: 0.72rem;
+  background: #ffffff;
+  color: var(--ink);
+  padding: 0.82rem;
+  text-align: left;
+}
+
+.home-tool-icon {
+  display: grid;
+  width: 2.35rem;
+  height: 2.35rem;
+  place-items: center;
+  border-radius: 0.7rem;
+  background: #f1f1f1;
+  color: #171515;
+}
+
+.home-tool-icon svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.home-tool-copy {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.home-tool-copy strong {
+  overflow: hidden;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-tool-copy small {
+  color: rgba(39, 35, 31, 0.48);
+  font-size: 0.66rem;
+  line-height: 1.35;
+}
+
+.workspace-tool-view {
+  margin-inline: -1rem;
+  width: calc(100% + 2rem);
+  overflow: hidden;
+  background: #f7f7f7;
+}
+
+.workspace-tool-shell {
+  display: grid;
+  align-content: start;
+  gap: 0.8rem;
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+  padding: 0.7rem 1rem max(1.4rem, env(safe-area-inset-bottom));
+}
+
+.workspace-tool-intro {
+  margin: 0;
+  color: rgba(39, 35, 31, 0.52);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.workspace-search-form {
+  margin: 0;
+  border-color: rgba(39, 35, 31, 0.08);
+  background: #ffffff;
+  box-shadow: 0 0.3rem 1.2rem rgba(39, 35, 31, 0.04);
+}
+
+.workspace-tool-state {
+  padding: 0.1rem 0.2rem 0;
+}
+
+.workspace-result-list {
+  overflow: visible;
+  padding: 0;
+}
+
+.workspace-calendar-card {
+  overflow: visible;
+  border: 1px solid rgba(39, 35, 31, 0.08);
+  border-radius: 0.85rem;
+  background: #ffffff;
+  padding: 1rem;
+  box-shadow: 0 0.3rem 1.2rem rgba(39, 35, 31, 0.04);
+}
+
+.workspace-todo-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  border: 1px solid rgba(39, 35, 31, 0.08);
+  border-radius: 0.85rem;
+  background: #ffffff;
+  padding: 0.9rem 1rem;
+}
+
+.workspace-todo-head > div {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.workspace-todo-head strong {
+  font-size: 0.98rem;
+}
+
+.workspace-todo-head span {
+  color: rgba(39, 35, 31, 0.48);
+  font-size: 0.72rem;
+}
+
+.workspace-todo-add {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: #171515;
+  color: #ffffff;
+}
+
+.workspace-todo-list .phone-todo-item {
+  background: #ffffff;
+}
+
+@media (max-width: 390px) {
+  .home-productivity-grid {
+    gap: 0.55rem;
+  }
+
+  .home-tool-card {
+    min-height: 6.8rem;
+    padding: 0.7rem;
+  }
+
+  .home-tool-copy small {
+    font-size: 0.62rem;
+  }
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

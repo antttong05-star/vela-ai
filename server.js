@@ -32,7 +32,6 @@ const MIME = {
 };
 
 const handlerCache = new Map();
-const PHONE_TICK_INTERVAL = 60 * 60 * 1000;
 const PROACTIVE_TICK_INTERVAL = 90 * 60 * 1000;
 
 function loadDotEnv(file) {
@@ -169,22 +168,17 @@ async function startBackgroundSchedulers() {
     process.env.VAPID_PUBLIC_KEY ||= vapid.VAPID_PUBLIC_KEY;
     process.env.VAPID_PRIVATE_KEY ||= vapid.VAPID_PRIVATE_KEY;
     process.env.VAPID_CONTACT ||= vapid.VAPID_CONTACT || "mailto:admin@example.com";
-    const phoneTick = await import(pathToFileURL(path.join(ROOT, "api", "phone-tick.js")).href);
     const proactiveTick = await import(pathToFileURL(path.join(ROOT, "api", "proactive-tick.js")).href);
-    const runPhone = async () => {
-      try { await phoneTick.runPhoneTick(); } catch (error) { console.error("手机后台任务失败：", error?.message || error); }
-    };
     const runProactive = async () => {
       if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
         try { await proactiveTick.runProactiveTick(); } catch (error) { console.error("主动消息后台任务失败：", error?.message || error); }
       }
     };
-    setTimeout(() => { void runPhone(); void runProactive(); }, 15 * 1000);
-    setInterval(runPhone, PHONE_TICK_INTERVAL);
+    setTimeout(() => { void runProactive(); }, 15 * 1000);
     setInterval(async () => {
       await runProactive();
     }, PROACTIVE_TICK_INTERVAL);
-    console.log("Vela background jobs started: phone checks every hour; proactive messages every 90 minutes during configured hours.");
+    console.log("Vela background jobs started: proactive messages every 90 minutes during configured hours.");
   } catch (error) {
     console.error("后台任务初始化失败：", error?.message || error);
   }
