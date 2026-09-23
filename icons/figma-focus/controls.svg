@@ -1,0 +1,18 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="256" height="86" viewBox="0 0 256 86" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame 2119905782">
+<circle id="Ellipse 65" cx="35" cy="43" r="35" fill="#1E1E1E"/>
+<circle id="Ellipse 64" cx="128" cy="43" r="43" fill="#7058F8"/>
+<circle id="Ellipse 66" cx="221" cy="43" r="35" fill="#1E1E1E"/>
+<g id="x 1">
+<path id="Vector" d="M41 37L29 49" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_2" d="M29 37L41 49" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g id="pause 1">
+<path id="Vector_3" d="M135.5 31.75H131.75C131.06 31.75 130.5 32.3096 130.5 33V53C130.5 53.6904 131.06 54.25 131.75 54.25H135.5C136.19 54.25 136.75 53.6904 136.75 53V33C136.75 32.3096 136.19 31.75 135.5 31.75Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_4" d="M124.25 31.75H120.5C119.81 31.75 119.25 32.3096 119.25 33V53C119.25 53.6904 119.81 54.25 120.5 54.25H124.25C124.94 54.25 125.5 53.6904 125.5 53V33C125.5 32.3096 124.94 31.75 124.25 31.75Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g id="check 1">
+<path id="Vector_5" d="M229 36L218 47L213 42" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+</svg>
