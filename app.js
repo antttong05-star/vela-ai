@@ -3,7 +3,7 @@ const STATE_RECOVERY_KEY = "little-room-state-recovery-v1";
 const STICKER_THUMB_STORAGE_KEY = "little-room-sticker-thumbs-v2";
 const API_SETTINGS_BACKUP_KEY = "little-room-api-settings-backup-v1";
 const API_UPDATE_RECOVERY_KEY = "little-room-api-update-recovery-v1";
-const APP_VERSION = "602";
+const APP_VERSION = "620";
 const PROACTIVE_FIXED_CONFIG = Object.freeze({
   firstDelayHours: 4,
   followUpDelayHours: 4,
@@ -13,6 +13,8 @@ const PROACTIVE_FIXED_CONFIG = Object.freeze({
   quietEnd: 0,
 });
 const FRONTEND_DEMO_MODE = new URLSearchParams(window.location.search).get("demo") === "1";
+const FIGMA_CHAT_DEMO = FRONTEND_DEMO_MODE && new URLSearchParams(window.location.search).get("design") === "1";
+document.body.classList.toggle("chat-device-preview", new URLSearchParams(window.location.search).get("device") === "iphone");
 const JOURNAL_AUTOMATION_BATCH_SIZE = 3;
 const JOURNAL_SOURCE_MESSAGE_LIMIT = 120;
 const JOURNAL_RETRY_BASE_MS = 10 * 60 * 1000;
@@ -536,10 +538,12 @@ let phoneAutonomyTimer = 0;
 let isPhoneAutonomyRunning = false;
 let phoneBrowserStatusText = "";
 let phoneCalendarCursor = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+let homeCalendarSelectedDate = new Date();
 let chatHeaderMenuCloseTimer = 0;
 let deepTalkState = { active: false, term: null };
+let deepTalkReturnFocus = null;
 const POMODORO_MODES = Object.freeze({
-  focus: { seconds: 25 * 60, idleLabel: "准备专注", runningLabel: "专注中" },
+  focus: { seconds: 25 * 60, idleLabel: "准备专注", runningLabel: "保持专注" },
   short: { seconds: 5 * 60, idleLabel: "短暂休息", runningLabel: "休息中" },
   long: { seconds: 15 * 60, idleLabel: "好好休息", runningLabel: "休息中" },
 });
@@ -548,7 +552,7 @@ let pomodoroRemaining = POMODORO_MODES.focus.seconds;
 let pomodoroRunning = false;
 let pomodoroEndAt = 0;
 let pomodoroTimer = 0;
-let pomodoroCompleted = Number(localStorage.getItem("vela-pomodoro-completed") || 0);
+let pomodoroCompleted = FRONTEND_DEMO_MODE ? 0 : Math.max(0, Number(localStorage.getItem("vela-pomodoro-completed") || 0) || 0);
 const pendingBookNoteGenerations = new Set();
 
 const $ = (selector) => document.querySelector(selector);
@@ -556,7 +560,6 @@ const elements = {
   title: $("#view-title"),
   aiStatus: $("#ai-status"),
   toast: $("#toast"),
-  startCallButton: $("#start-call-button"),
   chatHeaderMenuWrap: $("#chat-header-menu-wrap"),
   chatHeaderMenuButton: $("#chat-header-menu-button"),
   chatHeaderMenuBackdrop: $("#chat-header-menu-backdrop"),
@@ -647,14 +650,22 @@ const elements = {
   openCalendarButton: $("#open-calendar-button"),
   openTodoButton: $("#open-todo-button"),
   homeTodoMeta: $("#home-todo-meta"),
+  homeTodoPreview: $("#home-todo-preview"),
+  homeTodoFooterMeta: $("#home-todo-footer-meta"),
+  homeTodoAddButton: $("#home-todo-add-button"),
   homeCalendarMonth: $("#home-calendar-month"),
   homeCalendarGrid: $("#home-calendar-grid"),
+  homeCalendarPrev: $("#home-calendar-prev"),
+  homeCalendarNext: $("#home-calendar-next"),
+  homeTodoAnnouncement: $("#home-todo-announcement"),
   pomodoroClock: $("#pomodoro-clock"),
   pomodoroTime: $("#pomodoro-time"),
   pomodoroStatus: $("#pomodoro-status"),
   pomodoroRounds: $("#pomodoro-rounds"),
   pomodoroToggleButton: $("#pomodoro-toggle-button"),
   pomodoroResetButton: $("#pomodoro-reset-button"),
+  pomodoroCompleteButton: $("#pomodoro-complete-button"),
+  pomodoroModeDialog: $("#pomodoro-mode-dialog"),
   phoneOs: $("#phone-os"),
   phoneLockScreen: $("#phone-lock-screen"),
   phoneDesktop: $("#phone-desktop"),
@@ -863,7 +874,7 @@ const viewTitles = {
   bookcase: "Book",
   "book-reader": "正文",
   "inner-diary": "Diary",
-  persona: "Profile",
+  persona: "Agent",
   "persona-core": "人设",
   "persona-style": "风格",
   backup: "存档",
@@ -1127,6 +1138,20 @@ function createFrontendDemoState() {
   });
   demo.anniversaryStartDate = "2026-03-28";
   demo.anniversaryTitle = "在一起已经";
+  if (FIGMA_CHAT_DEMO) {
+    demo.phone.todos = [
+      { id: "demo-home-todo-1", text: "Drink 8 glasses of water", done: false, createdAt: now },
+      { id: "demo-home-todo-2", text: "Edit the PDF", done: false, createdAt: now },
+      { id: "demo-home-todo-3", text: "Edit the PDF", done: false, createdAt: now },
+    ];
+    demo.persona.name = "Assistant";
+    demo.persona.remark = "";
+    demo.messages = [
+      { role: "user", content: "Hi Brooke!", createdAt: now - 180000 },
+      { role: "user", content: "It's going well. Thanks for asking!", createdAt: now - 120000 },
+      { role: "assistant", content: "How's your project going?", createdAt: now - 60000 },
+    ];
+  }
   return demo;
 }
 
@@ -2323,24 +2348,35 @@ function drawDeepTalkTerm() {
   const currentId = deepTalkState.term?.id;
   const pool = DEEP_TALK_TERMS.filter((term) => term.id !== currentId);
   deepTalkState = {
-    active: true,
+    active: deepTalkState.active,
     term: pool[Math.floor(Math.random() * pool.length)] || DEEP_TALK_TERMS[0],
   };
   renderDeepTalk();
 }
 
 function openDeepTalkSheet() {
+  deepTalkReturnFocus = elements.imageActionPanel.hidden ? elements.deepTalkActiveOpenButton : elements.imageButton;
+  closeImageActionPanel();
+  elements.stickerPanel.hidden = true;
   closeChatHeaderMenu({ immediate: true });
-  if (!deepTalkState.term) drawDeepTalkTerm();
-  else {
-    deepTalkState.active = true;
-    renderDeepTalk();
+  if (!deepTalkState.term) {
+    if (FIGMA_CHAT_DEMO) {
+      deepTalkState.term = DEEP_TALK_TERMS.find((term) => term.term === "边际效用");
+      renderDeepTalk();
+    } else drawDeepTalkTerm();
   }
   elements.deepTalkModal.hidden = false;
+  elements.deepTalkModal.querySelector(".deep-talk-sheet").focus({ preventScroll: true });
+  document.querySelector(".app-shell").inert = true;
 }
 
-function closeDeepTalkSheet() {
+function closeDeepTalkSheet({ restoreFocus = true } = {}) {
   elements.deepTalkModal.hidden = true;
+  document.querySelector(".app-shell").inert = false;
+  if (restoreFocus) {
+    const target = deepTalkReturnFocus?.getClientRects().length ? deepTalkReturnFocus : elements.imageButton;
+    target.focus({ preventScroll: true });
+  }
 }
 
 function endDeepTalk() {
@@ -2355,15 +2391,19 @@ function renderPomodoro() {
   if (pomodoroRunning) pomodoroRemaining = Math.max(0, Math.ceil((pomodoroEndAt - Date.now()) / 1000));
   const minutes = Math.floor(pomodoroRemaining / 60);
   const seconds = pomodoroRemaining % 60;
-  const elapsed = config.seconds - pomodoroRemaining;
-  const progress = config.seconds ? Math.min(360, Math.max(0, (elapsed / config.seconds) * 360)) : 0;
+  const hasStarted = pomodoroRemaining < config.seconds;
   elements.pomodoroTime.textContent = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-  elements.pomodoroStatus.textContent = pomodoroRunning ? config.runningLabel : config.idleLabel;
-  elements.pomodoroRounds.textContent = `完成 ${pomodoroCompleted} 个番茄`;
-  elements.pomodoroToggleButton.textContent = pomodoroRunning ? "暂停" : "开始";
-  elements.pomodoroClock.style.setProperty("--pomodoro-progress", `${progress}deg`);
+  elements.pomodoroStatus.textContent = pomodoroRemaining === 0 ? "本轮已完成" : pomodoroRunning ? config.runningLabel : hasStarted ? "已暂停" : config.idleLabel;
+  elements.pomodoroRounds.textContent = `已完成${pomodoroCompleted}个番茄钟`;
+  const toggleLabel = pomodoroRunning ? "暂停计时" : pomodoroRemaining === 0 ? "开始新一轮" : hasStarted ? "继续计时" : "开始计时";
+  elements.pomodoroToggleButton.dataset.running = String(pomodoroRunning);
+  elements.pomodoroToggleButton.setAttribute("aria-label", toggleLabel);
+  elements.pomodoroToggleButton.title = toggleLabel;
+  elements.pomodoroCompleteButton.disabled = pomodoroRemaining === 0 || (!pomodoroRunning && !hasStarted);
   document.querySelectorAll("[data-pomodoro-mode]").forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.pomodoroMode === pomodoroMode);
+    const active = button.dataset.pomodoroMode === pomodoroMode;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", String(active));
   });
 }
 
@@ -2379,14 +2419,21 @@ function tickPomodoro() {
     renderPomodoro();
     return;
   }
+  finishPomodoro();
+}
+
+function finishPomodoro() {
+  // A completed or untouched idle session cannot be counted twice.
+  if (!pomodoroRunning && (pomodoroRemaining === 0 || pomodoroRemaining === POMODORO_MODES[pomodoroMode].seconds)) return;
   pomodoroRunning = false;
+  pomodoroRemaining = 0;
   stopPomodoroTicker();
   if (pomodoroMode === "focus") {
     pomodoroCompleted += 1;
-    localStorage.setItem("vela-pomodoro-completed", String(pomodoroCompleted));
-    showToast("专注完成，休息一下吧。" );
+    if (!FRONTEND_DEMO_MODE) localStorage.setItem("vela-pomodoro-completed", String(pomodoroCompleted));
+    showToast("专注完成，休息一下吧。");
   } else {
-    showToast("休息结束，准备好再开始。" );
+    showToast("休息结束，准备好再开始。");
   }
   renderPomodoro();
 }
@@ -2394,9 +2441,14 @@ function tickPomodoro() {
 function togglePomodoro() {
   if (pomodoroRunning) {
     pomodoroRemaining = Math.max(0, Math.ceil((pomodoroEndAt - Date.now()) / 1000));
+    if (pomodoroRemaining === 0) {
+      finishPomodoro();
+      return;
+    }
     pomodoroRunning = false;
     stopPomodoroTicker();
   } else {
+    if (pomodoroRemaining === 0) pomodoroRemaining = POMODORO_MODES[pomodoroMode].seconds;
     pomodoroRunning = true;
     pomodoroEndAt = Date.now() + pomodoroRemaining * 1000;
     stopPomodoroTicker();
@@ -2416,18 +2468,22 @@ function selectPomodoroMode(mode) {
   if (!POMODORO_MODES[mode]) return;
   pomodoroMode = mode;
   resetPomodoro();
+  elements.pomodoroModeDialog.close();
 }
 
 function askDeepTalk() {
   const term = deepTalkState.term;
   if (!term) return;
+  deepTalkState.active = true;
+  renderDeepTalk();
   elements.chatInput.value = `我们来聊聊「${term.term}」。它是什么意思？`;
   autoResizeInput();
-  closeDeepTalkSheet();
+  closeDeepTalkSheet({ restoreFocus: false });
   elements.chatInput.focus();
 }
 
 function switchView(viewName, { transition = "" } = {}) {
+  if (elements.pomodoroModeDialog.open) elements.pomodoroModeDialog.close();
   document.querySelectorAll(".view").forEach((view) => {
     view.classList.remove("is-view-enter-forward", "is-view-enter-back");
     view.classList.toggle("is-active", view.id === `${viewName}-view`);
@@ -2450,7 +2506,10 @@ function switchView(viewName, { transition = "" } = {}) {
         ? "api"
       : viewName;
   document.querySelectorAll(".tab").forEach((tab) => {
-    tab.classList.toggle("is-active", tab.dataset.view === activeTabView);
+    const isActive = tab.dataset.view === activeTabView;
+    tab.classList.toggle("is-active", isActive);
+    if (isActive) tab.setAttribute("aria-current", "page");
+    else tab.removeAttribute("aria-current");
   });
   elements.title.textContent = viewName === "chat"
     ? contactDisplayName()
@@ -2458,8 +2517,8 @@ function switchView(viewName, { transition = "" } = {}) {
       ? contactDisplayName()
       : viewTitles[viewName] || "Chat";
   renderAiStatus(viewName === "chat");
-  elements.startCallButton.hidden = viewName !== "chat";
   elements.chatHeaderMenuWrap.hidden = viewName !== "chat";
+  syncChatTitleAccessibility(viewName);
   closeChatHeaderMenu({ immediate: true });
   elements.writeDiaryButton.hidden = viewName !== "diary";
   elements.openUserMomentHeaderButton.hidden = viewName !== "diary";
@@ -2486,6 +2545,23 @@ function renderAiStatus(isChatView = document.querySelector("#chat-view")?.class
   elements.aiStatus.textContent = state.aiStatus ? state.aiStatus : "";
 }
 
+function syncChatTitleAccessibility(viewName) {
+  const isChat = viewName === "chat";
+  const isTimer = viewName === "pomodoro";
+  elements.title.tabIndex = isChat || isTimer ? 0 : -1;
+  if (isChat || isTimer) {
+    elements.title.setAttribute("role", "button");
+    elements.title.setAttribute("aria-label", isTimer ? "Focus · 切换计时模式" : "聊天操作");
+    elements.title.title = isTimer ? "切换专注、短休息或长休息" : "聊天操作";
+    elements.title.setAttribute("aria-haspopup", "dialog");
+  } else {
+    elements.title.removeAttribute("role");
+    elements.title.removeAttribute("aria-label");
+    elements.title.removeAttribute("aria-haspopup");
+    elements.title.removeAttribute("title");
+  }
+}
+
 function syncCurrentTitle() {
   const activeView = document.querySelector(".view.is-active");
   const viewName = activeView?.id?.replace("-view", "") || "chat";
@@ -2493,6 +2569,22 @@ function syncCurrentTitle() {
     ? contactDisplayName()
     : viewTitles[viewName] || "Chat";
   renderAiStatus(viewName === "chat");
+  syncChatTitleAccessibility(viewName);
+}
+
+function observeProfileDividers() {
+  const profile = document.querySelector("#persona-view");
+  // Figma stretches the separator instance; preserve the source SVG dimensions.
+  const fitDividers = () => {
+    profile.querySelectorAll(".profile-divider img").forEach((image) => {
+      const sourceWidth = parseFloat(getComputedStyle(image).width);
+      const slotWidth = image.parentElement.clientWidth;
+      if (sourceWidth > 0 && slotWidth > 0) image.style.setProperty("--profile-divider-scale", String(slotWidth / sourceWidth));
+    });
+  };
+  profile.querySelectorAll(".profile-divider img").forEach((image) => image.addEventListener("load", fitDividers));
+  new ResizeObserver(fitDividers).observe(profile);
+  fitDividers();
 }
 
 function renderMessages({ skipAutoScroll = false, forceAutoScroll = false } = {}) {
@@ -2538,7 +2630,7 @@ function renderMessages({ skipAutoScroll = false, forceAutoScroll = false } = {}
         `;
       }
       return `
-        <div class="message-row ${role}">
+        <div class="message-row ${role}${shouldShowMessageTime(index) ? " is-group-end" : ""}">
           ${role === "assistant" ? renderAvatar() : ""}
           <div class="message-stack${activeMessageActionIndex === index ? " is-actions-open" : ""}">
             ${renderMessageBubble(message, index, role, type)}
@@ -2780,23 +2872,30 @@ function renderHomeAvatars() {
   renderHomeCalendar();
 }
 
+function getHomeCalendarDateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
 function renderHomeCalendar() {
   if (!elements.homeCalendarMonth || !elements.homeCalendarGrid) return;
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const pendingTodos = (state.phone?.todos || []).filter((item) => !item.done).length;
-  elements.homeCalendarMonth.textContent = `${year}年${month + 1}月`;
-  const blanks = Array.from({ length: firstDay }, () => '<span class="home-calendar-day is-empty" aria-hidden="true"></span>');
-  const days = Array.from({ length: daysInMonth }, (_, index) => {
-    const day = index + 1;
-    const isToday = day === today.getDate();
-    const hasTodo = isToday && pendingTodos > 0;
-    return `<span class="home-calendar-day${isToday ? " is-today" : ""}${hasTodo ? " has-todo" : ""}">${day}</span>`;
-  });
-  elements.homeCalendarGrid.innerHTML = [...blanks, ...days].join("");
+  const selectedKey = getHomeCalendarDateKey(homeCalendarSelectedDate);
+  const todayKey = getHomeCalendarDateKey(new Date());
+  const weekStart = new Date(homeCalendarSelectedDate);
+  weekStart.setHours(12, 0, 0, 0);
+  weekStart.setDate(weekStart.getDate() - (weekStart.getDay() + 6) % 7);
+  elements.homeCalendarMonth.textContent = homeCalendarSelectedDate.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+  elements.homeCalendarGrid.innerHTML = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(weekStart);
+    date.setDate(date.getDate() + index);
+    const key = getHomeCalendarDateKey(date);
+    const isSelected = key === selectedKey;
+    return `<button class="home-calendar-day${isSelected ? " is-selected" : ""}" type="button" data-home-date="${key}" aria-label="${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日" aria-pressed="${isSelected}"${key === todayKey ? ' aria-current="date"' : ""}>${date.getDate()}</button>`;
+  }).join("");
+}
+
+function stepHomeCalendarWeek(direction) {
+  homeCalendarSelectedDate.setDate(homeCalendarSelectedDate.getDate() + direction * 7);
+  renderHomeCalendar();
 }
 
 function getPhoneDisplayName() {
@@ -4085,8 +4184,7 @@ async function requestBookReply(paragraph, contextText, userContent) {
 function renderBookMeta() {
   const books = getBooks();
   if (!elements.homeBookMeta) return;
-  const importedBookCount = books.filter((book) => book.imported).length;
-  elements.homeBookMeta.textContent = `${importedBookCount} 本书`;
+  elements.homeBookMeta.textContent = `共计${books.length}本书`;
 }
 
 function renderBookShelf() {
@@ -4407,9 +4505,13 @@ function renderTodoList() {
   const pendingCount = todoItems.filter((item) => !item.done).length;
   elements.phoneTodoCount.textContent = todoItems.length ? `${pendingCount}/${todoItems.length}` : "0 条";
   if (elements.homeTodoMeta) elements.homeTodoMeta.textContent = `${pendingCount} 项待办`;
+  if (elements.homeTodoFooterMeta) elements.homeTodoFooterMeta.textContent = `${pendingCount} 项待办`;
+  elements.homeTodoAddButton.hidden = pendingCount > 0;
+  elements.openTodoButton.setAttribute("aria-label", `查看全部待办，${pendingCount}项未完成，可添加待办`);
   renderHomeCalendar();
   if (!todoItems.length) {
     elements.phoneTodoList.innerHTML = '<div class="phone-empty-state">还没有待办，添加一条开始吧</div>';
+    if (elements.homeTodoPreview) elements.homeTodoPreview.innerHTML = '<span class="home-todo-empty">还没有待办，添加一条开始吧</span>';
     return;
   }
   elements.phoneTodoList.innerHTML = todoItems
@@ -4434,6 +4536,13 @@ function renderTodoList() {
       `,
     )
     .join("");
+  if (elements.homeTodoPreview) {
+    const pendingItems = todoItems.filter((item) => !item.done);
+    const previewItems = pendingItems.slice(0, 3);
+    elements.homeTodoPreview.innerHTML = previewItems.length
+      ? previewItems.map((item) => `<button class="home-todo-row" type="button" data-todo-toggle="${escapeAttribute(item.id)}" aria-label="完成待办：${escapeAttribute(item.text)}"><span class="home-todo-checkbox" aria-hidden="true"></span><span class="home-todo-text">${escapeHtml(item.text)}</span></button>`).join("")
+      : '<span class="home-todo-empty">待办都完成了</span>';
+  }
 }
 
 function addTodoItem(event) {
@@ -4894,7 +5003,7 @@ function playFavoriteVoiceMessage(favoriteId) {
 }
 
 function renderInnerDiaries() {
-  elements.homeDiaryMeta.textContent = `${state.innerDiaries.length} 篇`;
+  elements.homeDiaryMeta.textContent = `共计${state.innerDiaries.length}篇`;
   if (!state.innerDiaries.length) {
     elements.innerDiaryList.innerHTML = `
       <article class="inner-diary-card">
@@ -8596,13 +8705,7 @@ function hasActiveOrIncomingCall() {
 }
 
 function shouldTriggerCall(content, { fromAssistant = false } = {}) {
-  if (hasActiveOrIncomingCall()) return false;
-  const text = String(content || "").trim();
-  if (!text) return false;
-  if (fromAssistant) {
-    return /(给你打(?:个)?电话|打给你|拨给你|给你拨|电话打过去|来电铃声|接电话)/i.test(text);
-  }
-  return /(打个?电话|打电话|来电|接电话|通话|电话一下|给你打|给我打|想打给你|想听.*声音|听听.*声音)/i.test(text);
+  return false;
 }
 
 const CALL_UI_NARRATION_PHRASES = [
@@ -10092,6 +10195,7 @@ function renderStickerPanel() {
 }
 
 function toggleStickerPanel() {
+  closeChatHeaderMenu({ immediate: true });
   closeImageActionPanel();
   elements.stickerPanel.hidden = !elements.stickerPanel.hidden;
 }
@@ -10736,6 +10840,7 @@ function openImageModal() {
 
 function toggleImageActionPanel() {
   const willOpen = elements.imageActionPanel.hidden;
+  if (willOpen) elements.chatInput.blur();
   elements.stickerPanel.hidden = true;
   elements.imageActionPanel.hidden = !willOpen;
   elements.chatForm.classList.toggle("has-attachment-panel", willOpen);
@@ -11349,6 +11454,12 @@ function registerEvents() {
     true,
   );
   elements.chatInput.addEventListener("input", autoResizeInput);
+  elements.chatInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+      event.preventDefault();
+      if (elements.chatInput.value.trim()) elements.chatForm.requestSubmit();
+    }
+  });
   elements.callInput.addEventListener("input", autoResizeCallInput);
   elements.chatInput.addEventListener("focus", () => {
     closeImageActionPanel();
@@ -11358,15 +11469,49 @@ function registerEvents() {
     document.body.classList.remove("is-keyboard-open");
   });
 
-  elements.startCallButton.addEventListener("click", () => {
-    closeImageActionPanel();
-    showOutgoingCall();
-  });
   elements.chatHeaderMenuButton.addEventListener("click", () => {
     if (elements.chatHeaderMenu.hidden || elements.chatHeaderMenu.classList.contains("is-closing")) {
       openChatHeaderMenu();
     } else {
       closeChatHeaderMenu();
+    }
+  });
+  const openTitleMenu = () => {
+    if (document.querySelector("#chat-view.is-active")) openChatHeaderMenu();
+    else if (document.querySelector("#pomodoro-view.is-active")) elements.pomodoroModeDialog.showModal();
+  };
+  elements.title.addEventListener("click", openTitleMenu);
+  elements.title.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openTitleMenu();
+    }
+  });
+  $("#chat-contact-button").addEventListener("click", () => {
+    closeChatHeaderMenu({ immediate: true });
+    openContactProfile();
+  });
+  $("#deep-talk-dismiss-button").addEventListener("click", () => closeDeepTalkSheet());
+  let deepTalkDragY = null;
+  $("#deep-talk-dismiss-button").addEventListener("pointerdown", (event) => {
+    deepTalkDragY = event.clientY;
+    event.currentTarget.setPointerCapture(event.pointerId);
+  });
+  $("#deep-talk-dismiss-button").addEventListener("pointerup", (event) => {
+    if (deepTalkDragY !== null && event.clientY - deepTalkDragY > 40) closeDeepTalkSheet();
+    deepTalkDragY = null;
+  });
+  elements.deepTalkModal.addEventListener("keydown", (event) => {
+    if (event.key !== "Tab") return;
+    const buttons = [...elements.deepTalkModal.querySelectorAll("button:not([hidden]):not(:disabled)")];
+    const first = buttons[0];
+    const last = buttons.at(-1);
+    if (event.shiftKey && (document.activeElement === first || document.activeElement.matches(".deep-talk-sheet"))) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
     }
   });
   elements.chatHeaderMenuBackdrop.addEventListener("click", () => closeChatHeaderMenu());
@@ -11648,7 +11793,7 @@ function registerEvents() {
     sendSticker(button.dataset.sticker);
   });
   document.addEventListener("click", (event) => {
-    if (!elements.chatHeaderMenu.hidden && !event.target.closest("#chat-header-menu-wrap")) {
+    if (!elements.chatHeaderMenu.hidden && !event.target.closest("#chat-header-menu-wrap, #view-title")) {
       closeChatHeaderMenu();
     }
     if (!event.target.closest(".memory-journal-menu-wrap")) {
@@ -11732,6 +11877,18 @@ function registerEvents() {
   });
   elements.writeDiaryButton.addEventListener("click", writeDiary);
   elements.openTodoModalButton.addEventListener("click", openTodoModal);
+  elements.homeTodoAddButton.addEventListener("click", openTodoModal);
+  elements.homeTodoPreview.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-todo-toggle]");
+    if (!button) return;
+    const buttons = Array.from(elements.homeTodoPreview.querySelectorAll("[data-todo-toggle]"));
+    const index = buttons.indexOf(button);
+    const item = (state.phone.todos || []).find((todo) => todo.id === button.dataset.todoToggle);
+    toggleTodoItem(button.dataset.todoToggle);
+    const remaining = elements.homeTodoPreview.querySelectorAll("[data-todo-toggle]");
+    (remaining[Math.min(index, remaining.length - 1)] || elements.homeTodoAddButton).focus();
+    elements.homeTodoAnnouncement.textContent = item ? `已完成：${item.text}` : "待办已更新";
+  });
   elements.todoForm.addEventListener("submit", addTodoItem);
   elements.cancelTodoButton.addEventListener("click", closeTodoModal);
   elements.todoModal.addEventListener("click", (event) => {
@@ -11754,13 +11911,31 @@ function registerEvents() {
     phoneCalendarCursor = new Date(phoneCalendarCursor.getFullYear(), phoneCalendarCursor.getMonth() + 1, 1);
     renderPhoneCalendar();
   });
-  elements.openCalendarButton.addEventListener("click", () => switchView("calendar", { transition: "forward" }));
+  elements.homeCalendarPrev.addEventListener("click", () => stepHomeCalendarWeek(-1));
+  elements.homeCalendarNext.addEventListener("click", () => stepHomeCalendarWeek(1));
+  elements.homeCalendarGrid.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-home-date]");
+    if (!button) return;
+    homeCalendarSelectedDate = new Date(`${button.dataset.homeDate}T12:00:00`);
+    renderHomeCalendar();
+    elements.homeCalendarGrid.querySelector('[aria-pressed="true"]')?.focus();
+  });
+  elements.openCalendarButton.addEventListener("click", () => {
+    phoneCalendarCursor = new Date(homeCalendarSelectedDate.getFullYear(), homeCalendarSelectedDate.getMonth(), 1);
+    switchView("calendar", { transition: "forward" });
+  });
   elements.openTodoButton.addEventListener("click", () => switchView("todo", { transition: "forward" }));
   document.querySelectorAll("[data-pomodoro-mode]").forEach((button) => {
     button.addEventListener("click", () => selectPomodoroMode(button.dataset.pomodoroMode));
   });
   elements.pomodoroToggleButton.addEventListener("click", togglePomodoro);
   elements.pomodoroResetButton.addEventListener("click", resetPomodoro);
+  elements.pomodoroCompleteButton.addEventListener("click", finishPomodoro);
+  elements.pomodoroModeDialog.addEventListener("click", (event) => {
+    if (event.target !== elements.pomodoroModeDialog) return;
+    const bounds = elements.pomodoroModeDialog.getBoundingClientRect();
+    if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) elements.pomodoroModeDialog.close();
+  });
   elements.openInnerDiaryButton.addEventListener("click", () => switchView("inner-diary"));
   elements.openBookButton.addEventListener("click", openBookcase);
   elements.backHomeButton.addEventListener("click", handleBackNavigation);
@@ -11964,6 +12139,9 @@ function init() {
   renderMemoryOverview();
   if (readApiUpdateRecovery()) persistApiState();
   registerEvents();
+  observeProfileDividers();
+  const initialView = new URLSearchParams(window.location.search).get("view");
+  if (["pomodoro", "home", "persona"].includes(initialView)) switchView(initialView);
   autoResizeInput();
   void initializeProactiveMessaging();
   prepareStickerThumbnails();

@@ -54,6 +54,7 @@
 
 :root {
   color-scheme: light;
+  --app-safe-top: env(safe-area-inset-top, 0px);
   --bg: #ffffff;
   --page-bg: #ffffff;
   --surface: #ffffff;
@@ -93,6 +94,11 @@ body {
   overflow: hidden;
 }
 
+/* Keep the Figma status-bar area's original height, with no system artwork. */
+body.chat-device-preview {
+  --app-safe-top: 47px;
+}
+
 button,
 input,
 textarea {
@@ -119,8 +125,8 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  min-height: calc(3.55rem + env(safe-area-inset-top) - 10px);
-  padding: env(safe-area-inset-top) 1rem 0;
+  min-height: calc(3.55rem + var(--app-safe-top) - 10px);
+  padding: var(--app-safe-top) 1rem 0;
   background: #f7f7f7;
 }
 
@@ -133,10 +139,6 @@ button {
   justify-content: center;
   min-height: 40px;
   padding: 0 15px;
-  background: #f4f6f5;
-}
-
-.app-shell:has(#chat-view.is-active) .tabbar {
   background: #f4f6f5;
 }
 
@@ -2861,11 +2863,15 @@ button.chat-avatar {
 }
 
 .home-entry-stack-three {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .home-entry-stack-three .home-entry {
   grid-template-columns: 2.25rem minmax(0, 1fr);
+}
+
+.home-entry-stack-three .home-todo-card {
+  grid-column: 1 / -1;
 }
 
 .pomodoro-view {
@@ -2950,7 +2956,7 @@ button.chat-avatar {
 .pomodoro-actions {
   display: grid;
   width: min(100%, 19rem);
-  grid-template-columns: 1fr 1.6fr;
+  grid-template-columns: 1fr;
   gap: 0.7rem;
 }
 
@@ -3152,25 +3158,84 @@ button.chat-avatar {
 
 .home-todo-card {
   display: grid;
-  gap: 0.8rem;
+  gap: 0.68rem;
   width: 100%;
   border: 1px solid rgba(39, 35, 31, 0.08);
   border-radius: 0.62rem;
   background: #ffffff;
   color: var(--ink);
   padding: 0.95rem 1rem;
+  text-align: left;
 }
 
 .home-todo-head,
 .home-todo-title-wrap {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 0.65rem;
 }
 
-.home-todo-head {
+.home-todo-title-wrap > span:last-child {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.home-todo-more {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  border: 0;
+  background: transparent;
+  color: rgba(39, 35, 31, 0.42);
+  font-size: 0.7rem;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.home-todo-more svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.home-todo-footer {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
+  border-top: 1px solid rgba(39, 35, 31, 0.07);
+  padding-top: 0.62rem;
+}
+
+.home-todo-footer-meta {
+  color: rgba(39, 35, 31, 0.4);
+  font-size: 0.7rem;
+}
+
+.home-todo-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.home-todo-create {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  border: 0;
+  border-radius: 999px;
+  background: #171515;
+  color: #ffffff;
+  padding: 0.35rem 0.62rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.home-todo-create svg {
+  width: 0.82rem;
+  height: 0.82rem;
+}
+
+.home-todo-head {
+  justify-content: flex-end;
 }
 
 .home-todo-title {
@@ -3196,10 +3261,11 @@ button.chat-avatar {
 }
 
 .home-todo-add {
-  width: 1.7rem;
-  height: 1.7rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 999px;
-  background: transparent;
+  background: #171515;
+  color: #ffffff;
 }
 
 .home-todo-add svg,
@@ -3209,15 +3275,45 @@ button.chat-avatar {
   height: 1.08rem;
 }
 
-.home-todo-list {
+.home-todo-preview {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.48rem;
 }
 
 .home-todo-empty {
   color: rgba(39, 35, 31, 0.48);
   font-size: 0.8rem;
   line-height: 1.5;
+  padding-block: 0.15rem;
+}
+
+.home-todo-preview-item {
+  display: grid;
+  grid-template-columns: 0.85rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  color: rgba(39, 35, 31, 0.78);
+  font-size: 0.78rem;
+}
+
+.home-todo-preview-item::before {
+  width: 0.7rem;
+  height: 0.7rem;
+  border: 1.5px solid rgba(39, 35, 31, 0.45);
+  border-radius: 50%;
+  content: "";
+}
+
+.home-todo-preview-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-todo-preview-rest {
+  color: rgba(39, 35, 31, 0.42);
+  font-size: 0.7rem;
 }
 
 .home-todo-item {
@@ -5585,12 +5681,14 @@ button.chat-avatar {
 }
 
 .tabbar {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 0.35rem;
-  padding: 0.48rem 0.75rem max(0.48rem, env(safe-area-inset-bottom));
+  height: calc(50px + env(safe-area-inset-bottom));
+  gap: 0;
+  padding: 0 13px env(safe-area-inset-bottom);
   border-top: 0;
-  background: #f7f7f7;
+  background: #fff;
   backdrop-filter: none;
   transition:
     opacity 160ms ease,
@@ -5606,7 +5704,9 @@ body.is-keyboard-open .tabbar {
 .tab {
   display: grid;
   min-width: 0;
-  min-height: 2.7rem;
+  height: 50px;
+  min-height: 50px;
+  padding: 0;
   place-items: center;
   border: 0;
   border-radius: 0.6rem;
@@ -5615,29 +5715,34 @@ body.is-keyboard-open .tabbar {
 }
 
 .tab-icon {
-  display: grid;
-  width: 1.8rem;
-  height: 1.8rem;
-  place-items: center;
-  line-height: 1;
-}
-
-.tab-icon svg {
-  width: 1.5rem;
-  height: 1.5rem;
-  fill: transparent;
-  transition:
-    color 160ms ease,
-    fill 160ms ease;
+  display: block;
 }
 
 .tab.is-active {
-  background: #f7f7f7;
+  background: transparent;
   color: var(--accent);
 }
 
-.tab.is-active .tab-icon svg {
-  fill: transparent;
+.tab:focus-visible {
+  outline: 2px solid #8772ff;
+  outline-offset: -4px;
+}
+
+/* The same Figma navigation and preview safe area are shared by every page. */
+body.chat-device-preview .tabbar {
+  height: 84px;
+  padding-bottom: 34px;
+}
+
+body.chat-device-preview .tabbar::after {
+  content: "";
+  position: absolute;
+  bottom: 8px;
+  left: calc(50% - 67.5px);
+  width: 134px;
+  height: 5px;
+  border-radius: 100px;
+  background: #131212;
 }
 
 .toast {

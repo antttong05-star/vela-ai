@@ -1,0 +1,137 @@
+/* Figma 1130:5627. Live content shares the existing Todo, books and diary state. */
+.app-shell:has(#home-view.is-active) {
+  border: 0;
+  background: var(--chat-design-bg);
+}
+.app-shell:has(#home-view.is-active) .topbar {
+  position: relative;
+  height: var(--app-safe-top);
+  min-height: var(--app-safe-top);
+  padding: 0;
+  background: #fff;
+}
+.app-shell:has(#home-view.is-active) .title-row,
+.app-shell:has(#home-view.is-active) .header-actions { display: none; }
+.app-shell:has(#home-view.is-active) .view-stack {
+  padding: 0 15px;
+  background: var(--chat-design-bg);
+}
+.view#home-view {
+  background: var(--chat-design-bg);
+  overscroll-behavior: contain;
+  font-family: "PingFang SC", -apple-system, "MiSans", sans-serif;
+}
+#home-view .home-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: auto;
+  padding: 16px 0 24px;
+}
+#home-view .home-calendar-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: 16px;
+  border: 0;
+  border-radius: 12px;
+  background: #fff;
+}
+#home-view .home-calendar-head {
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 10px;
+}
+#home-view .home-calendar-head button {
+  display: flex;
+  align-items: center;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #121212;
+}
+#home-view #open-calendar-button {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  text-align: left;
+}
+#home-view #home-calendar-month { color: #121212; font-size: 17px; font-weight: 500; line-height: 24px; }
+.home-calendar-controls { display: flex; margin-right: -11px; }
+#home-view .home-calendar-controls button { justify-content: center; width: 34px; height: 40px; }
+#home-view img { flex-shrink: 0; display: block; }
+#home-view .home-calendar-week,
+#home-view .home-calendar-grid {
+  grid-template-columns: repeat(7, 40px);
+  justify-content: space-between;
+  gap: 0;
+}
+#home-view .home-calendar-week {
+  margin-top: 2px;
+  height: 38px;
+  align-items: center;
+  color: #8f9098;
+  font: 600 10px/12px "Inter", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+#home-view .home-calendar-grid { margin-top: 9px; }
+#home-view .home-calendar-day {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 20px;
+  background: transparent;
+  color: #494a50;
+  font: 700 12px/16px "Inter", sans-serif;
+}
+#home-view .home-calendar-day.is-selected { color: #fff; background: #a898fd; }
+#home-view .home-todo-card { gap: 10px; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.home-todo-heading { display: flex; justify-content: space-between; align-items: center; height: 15px; }
+.home-todo-heading h2 { margin: 0; color: #2f3036; font: 700 12px/15px "Inter", sans-serif; }
+#home-view .home-todo-more {
+  min-height: 35px;
+  padding: 10px 0 10px 12px;
+  color: rgba(47, 48, 54, .7);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 15px;
+}
+#home-view .home-todo-preview { display: grid; gap: 10px; }
+.home-todo-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  min-height: 64px;
+  width: 100%;
+  padding: 20px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: #fff;
+  color: #121212;
+  text-align: left;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 24px;
+  cursor: pointer;
+}
+.home-todo-checkbox { flex: 0 0 24px; height: 24px; border: 2px solid #d6d6d6; border-radius: 6px; }
+.home-todo-text { min-width: 0; overflow-wrap: anywhere; }
+#home-view .home-todo-empty { display: block; padding: 22px 16px; border-radius: 12px; background: #fff; font-size: 14px; line-height: 20px; color: #8f9098; }
+.home-todo-empty-add { justify-self: start; border: 0; background: transparent; color: #7053ff; padding: 8px 0; font-size: 14px; }
+.home-todo-empty-add[hidden] { display: none; }
+.home-todo-announcement { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.home-library-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; }
+#home-view .home-entry { display: flex; flex-direction: column; align-items: flex-start; gap: 15px; min-width: 0; min-height: 94px; padding: 16px; border: 0; border-radius: 12px; background: #ececfa; text-align: left; }
+#home-view #open-inner-diary-button { background: #ecfaf3; }
+.home-entry-heading { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 8px; }
+#home-view .home-entry-title { color: #000; font-size: 20px; font-weight: 500; line-height: 28px; }
+#home-view .home-entry-meta { color: #666; font: 400 14px/19px "Source Code Pro", "PingFang SC", monospace; }
+#home-view button:focus-visible { outline: 2px solid #8772ff; outline-offset: 2px; }
+@media (max-width: 350px) {
+  #home-view .home-calendar-week,
+  #home-view .home-calendar-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  #home-view .home-calendar-day { width: 36px; height: 36px; justify-self: center; }
+}

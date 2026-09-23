@@ -1,0 +1,77 @@
+/* Figma 1130:5762 — only the Agent/Profile landing page, not its editors. */
+.app-shell:has(#persona-view.is-active) {
+  border: 0;
+  background: #fff;
+}
+
+.app-shell:has(#persona-view.is-active) .topbar {
+  position: relative;
+  height: calc(40px + var(--app-safe-top));
+  min-height: calc(40px + var(--app-safe-top));
+  padding: var(--app-safe-top) 16px 0;
+  justify-content: center;
+  background: #fff;
+}
+
+.app-shell:has(#persona-view.is-active) .title-row {
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-shell:has(#persona-view.is-active) .title-row h1 {
+  margin: 0;
+  color: #0f1310;
+  font: 500 16px/21px "MiSans", "PingFang SC", sans-serif;
+}
+
+.app-shell:has(#persona-view.is-active) .header-actions { display: none; }
+.app-shell:has(#persona-view.is-active) .view-stack { padding: 0; background: #fff; }
+
+.view#persona-view {
+  margin: 0;
+  padding: 0 16px 24px;
+  gap: 2px;
+  overscroll-behavior: contain;
+}
+
+#persona-view .profile-memory-entry {
+  flex: 0 0 auto;
+  grid-template-columns: 16px minmax(0, 1fr) 12px;
+  column-gap: 8px;
+  min-height: 52px;
+  padding: 16px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: #fff;
+  color: #1f2024;
+  cursor: pointer;
+}
+
+#persona-view .profile-memory-title {
+  color: #1f2024;
+  font: 400 14px/20px "PingFang SC", "MiSans", sans-serif;
+  overflow-wrap: anywhere;
+}
+
+#persona-view .profile-entry-icon,
+#persona-view .profile-entry-chevron,
+#persona-view .profile-divider img { display: block; }
+
+#persona-view .profile-divider {
+  position: relative;
+  flex: 0 0 0;
+  height: 0;
+}
+
+#persona-view .profile-divider img {
+  position: absolute;
+  top: -.25px;
+  left: 0;
+  transform-origin: left center;
+  transform: scaleX(var(--profile-divider-scale, 1));
+}
+
+#persona-view .profile-memory-entry:active { background: #f9f8fd; }
+#persona-view .profile-memory-entry:focus-visible { outline: 2px solid #8772ff; outline-offset: -2px; }

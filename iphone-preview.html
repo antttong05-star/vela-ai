@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vela · iPhone 14/15 Pro Preview</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="./icons/vela-favicon-32.png" />
+    <link rel="icon" type="image/svg+xml" sizes="any" href="./icons/vela-mark.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./icons/vela-apple-touch-180.png" />
+    <style>
+      * { box-sizing: border-box; }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        background: #e7e7e9;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      }
+
+      .preview-stage {
+        position: relative;
+        width: 393px;
+        height: 852px;
+      }
+
+      .preview-fit {
+        position: relative;
+      }
+
+      .preview-stage {
+        position: absolute;
+        top: 0;
+        left: 0;
+        transform: scale(var(--preview-scale, 1));
+        transform-origin: top left;
+      }
+
+      .device {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        border: 0;
+        border-radius: 0;
+        background: #f7f7f7;
+        box-shadow: none;
+      }
+
+      iframe {
+        display: block;
+        width: 393px;
+        height: 852px;
+        border: 0;
+        background: #f7f7f7;
+      }
+
+      .size-label {
+        position: fixed;
+        right: 8px;
+        bottom: 8px;
+        border-radius: 999px;
+        background: rgba(17, 17, 19, 0.72);
+        color: white;
+        padding: 5px 9px;
+        font-size: 11px;
+        letter-spacing: 0.01em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="preview-fit" id="preview-fit">
+      <div class="preview-stage" id="preview-stage">
+        <div class="device">
+          <iframe src="./?v=620&amp;device=iphone" title="Vela iPhone 14 Pro 与 iPhone 15 Pro 预览"></iframe>
+        </div>
+      </div>
+    </div>
+    <script>
+      const fit = document.querySelector("#preview-fit");
+      const stage = document.querySelector("#preview-stage");
+      const previewParams = new URLSearchParams(window.location.search);
+      const previewUrl = new URL("./", window.location.href);
+      previewUrl.searchParams.set("v", "620");
+      previewUrl.searchParams.set("device", "iphone");
+      if (previewParams.get("demo") === "1") previewUrl.searchParams.set("demo", "1");
+      if (previewParams.get("design") === "1") previewUrl.searchParams.set("design", "1");
+      if (["pomodoro", "home", "persona"].includes(previewParams.get("view"))) previewUrl.searchParams.set("view", previewParams.get("view"));
+      document.querySelector("iframe").src = previewUrl.href;
+      const resizePreview = () => {
+        const scale = Math.min((window.innerWidth - 24) / 393, (window.innerHeight - 24) / 852, 1);
+        stage.style.setProperty("--preview-scale", String(scale));
+        fit.style.width = `${393 * scale}px`;
+        fit.style.height = `${852 * scale}px`;
+      };
+      window.addEventListener("resize", resizePreview);
+      resizePreview();
+    </script>
+  </body>
+</html>

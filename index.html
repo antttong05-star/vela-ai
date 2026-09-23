@@ -6,16 +6,21 @@
     <meta name="theme-color" content="#f7f7f7" />
     <meta name="description" content="Vela — your private AI assistant." />
     <title>Vela</title>
-    <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png" />
-  <link rel="stylesheet" href="./styles.css?v=602" />
+    <link rel="manifest" href="./manifest.webmanifest?v=619" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./icons/vela-favicon-32.png" />
+    <link rel="icon" type="image/svg+xml" sizes="any" href="./icons/vela-mark.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./icons/vela-apple-touch-180.png" />
+  <link rel="stylesheet" href="./styles.css?v=618" />
+  <link rel="stylesheet" href="./chat-design.css?v=617" />
+  <link rel="stylesheet" href="./focus-design.css?v=617" />
+  <link rel="stylesheet" href="./home-design.css?v=618" />
+  <link rel="stylesheet" href="./profile-design.css?v=620" />
   </head>
   <body>
     <div class="app-shell">
       <header class="topbar">
         <div class="title-row">
-          <h1 id="view-title">Chat</h1>
+          <h1 id="view-title" tabindex="0" role="button" aria-label="聊天操作" aria-haspopup="dialog">Chat</h1>
           <span class="ai-status" id="ai-status" hidden></span>
         </div>
         <div class="header-actions">
@@ -29,6 +34,14 @@
             <div class="chat-header-menu" id="chat-header-menu" role="dialog" aria-modal="true" aria-label="聊天操作" hidden>
               <div class="chat-header-menu-panel">
                 <span class="chat-header-menu-handle" aria-hidden="true"></span>
+                <button class="chat-header-menu-item" id="chat-contact-button" type="button">
+                  <img src="./icons/figma-chat/user.svg" alt="" />
+                  <span>对方资料</span>
+                </button>
+                <button class="chat-header-menu-item" id="sticker-button" type="button" aria-label="发送表情包">
+                  <img src="./icons/chat-sticker-button.svg" alt="" />
+                  <span>表情包</span>
+                </button>
                 <button class="chat-header-menu-item" id="quick-test-api-button" type="button">
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
@@ -107,15 +120,12 @@
             <button id="deep-talk-active-end-button" type="button" aria-label="结束 DeepTalk">结束</button>
           </div>
           <form class="composer" id="chat-form">
-            <div class="composer-pill">
-              <textarea id="chat-input" rows="1" autocomplete="off"></textarea>
-              <div class="composer-tools">
-                <button class="composer-icon-button" id="sticker-button" type="button" aria-label="发送表情包">
-                  <img src="./icons/chat-sticker-button.svg" alt="" aria-hidden="true" />
-                </button>
-                <button class="composer-icon-button" id="image-button" type="button" aria-label="添加" aria-expanded="false">
-                  <img src="./icons/chat-add-button.svg" alt="" aria-hidden="true" />
-                </button>
+            <div class="chat-composer-row">
+              <button class="composer-icon-button" id="image-button" type="button" aria-label="添加" aria-expanded="false" aria-controls="image-action-panel">
+                <img src="./icons/figma-chat/add.svg" alt="" aria-hidden="true" />
+              </button>
+              <div class="composer-pill">
+                <textarea id="chat-input" rows="1" autocomplete="off" placeholder="Type a message..." aria-label="输入消息"></textarea>
                 <button class="send-button" type="submit" aria-label="发送">
                   <img src="./icons/chat-send-button.svg" alt="" aria-hidden="true" />
                 </button>
@@ -123,31 +133,17 @@
             </div>
             <div class="sticker-panel" id="sticker-panel" hidden></div>
             <div class="chat-attachment-panel" id="image-action-panel" hidden>
+              <button class="chat-attachment-tile" id="open-deep-talk-button" type="button" aria-haspopup="dialog">
+                <span class="chat-attachment-icon deep-talk-attachment-icon" aria-hidden="true">
+                  <img src="./icons/figma-chat/deeptalk.svg" alt="" />
+                </span>
+                <span>深度对话</span>
+              </button>
               <button class="chat-attachment-tile" id="open-image-upload-button" type="button">
                 <span class="chat-attachment-icon" aria-hidden="true">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
-                    <circle cx="9" cy="9" r="2"/>
-                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
-                  </svg>
+                  <img src="./icons/figma-chat/image.svg" alt="" />
                 </span>
-                <span>照片</span>
-              </button>
-              <button class="chat-attachment-tile" id="start-call-button" type="button">
-                <span class="chat-attachment-icon" aria-hidden="true">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.91.33 1.79.62 2.64a2 2 0 0 1-.45 2.11L8 9.74a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.64.62A2 2 0 0 1 22 16.92z"/>
-                  </svg>
-                </span>
-                <span>通话</span>
-              </button>
-              <button class="chat-attachment-tile" id="open-deep-talk-button" type="button">
-                <span class="chat-attachment-icon deep-talk-attachment-icon" aria-hidden="true">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 3v18"/><path d="M3 12h18"/><path d="m5.6 5.6 12.8 12.8"/><path d="m18.4 5.6-12.8 12.8"/>
-                  </svg>
-                </span>
-                <span>DeepTalk</span>
+                <span>发送图片</span>
               </button>
             </div>
           </form>
@@ -182,70 +178,61 @@
 
         <section class="view pomodoro-view" id="pomodoro-view" aria-label="番茄钟">
           <div class="pomodoro-shell">
-            <div class="pomodoro-mode-tabs" role="group" aria-label="计时模式">
-              <button class="is-active" type="button" data-pomodoro-mode="focus">专注</button>
-              <button type="button" data-pomodoro-mode="short">短休息</button>
-              <button type="button" data-pomodoro-mode="long">长休息</button>
-            </div>
-            <div class="pomodoro-clock" id="pomodoro-clock" style="--pomodoro-progress: 0deg">
+            <div class="pomodoro-clock" id="pomodoro-clock">
+              <img class="pomodoro-outer-ring" src="./icons/figma-focus/outer-ring.svg" alt="" />
+              <img class="pomodoro-timer-ring" src="./icons/figma-focus/timer-ring.svg" alt="" />
               <div class="pomodoro-clock-inner">
                 <span id="pomodoro-status">准备专注</span>
-                <strong id="pomodoro-time">25:00</strong>
-                <small id="pomodoro-rounds">完成 0 个番茄</small>
+                <strong id="pomodoro-time" role="timer" aria-label="剩余时间">25:00</strong>
+                <small id="pomodoro-rounds">已完成0个番茄钟</small>
               </div>
             </div>
             <div class="pomodoro-actions">
-              <button class="pomodoro-reset" id="pomodoro-reset-button" type="button">重置</button>
-              <button class="pomodoro-toggle" id="pomodoro-toggle-button" type="button">开始</button>
+              <img class="pomodoro-controls-art" src="./icons/figma-focus/controls.svg" alt="" />
+              <button class="pomodoro-reset" id="pomodoro-reset-button" type="button" aria-label="重置计时" title="重置计时"></button>
+              <button class="pomodoro-toggle" id="pomodoro-toggle-button" type="button" aria-label="开始计时" title="开始计时" data-running="false"><span class="pomodoro-play-icon" aria-hidden="true"></span></button>
+              <button class="pomodoro-complete" id="pomodoro-complete-button" type="button" aria-label="完成本轮" title="完成本轮"></button>
             </div>
-            <p class="pomodoro-tip">一次只做一件事。专注结束后，记得休息一下。</p>
           </div>
         </section>
 
         <section class="view" id="home-view" aria-label="主页">
           <div class="home-grid">
-            <button class="home-calendar-card" id="open-calendar-button" type="button" aria-label="打开完整日历">
-              <div class="home-calendar-head"><strong id="home-calendar-month"></strong><span>查看完整日历</span></div>
-              <div class="home-calendar-week" aria-hidden="true"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
-              <div class="home-calendar-grid" id="home-calendar-grid"></div>
-            </button>
-            <div class="home-feature-grid">
-              <div class="home-entry-stack home-entry-stack-three">
-                <button class="home-entry" id="open-todo-button" type="button" aria-label="打开 Todo">
-                  <span class="home-entry-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.05" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <section class="home-calendar-card" aria-label="周日历">
+              <div class="home-calendar-head">
+                <button id="open-calendar-button" type="button" aria-label="打开完整日历" title="打开完整日历"><span id="home-calendar-month"></span></button>
+                <div class="home-calendar-controls">
+                  <button id="home-calendar-prev" type="button" aria-label="上一周"><img src="./icons/figma-home/arrow-left.svg" alt="" /></button>
+                  <button id="home-calendar-next" type="button" aria-label="下一周"><img src="./icons/figma-home/arrow-right.svg" alt="" /></button>
+                </div>
+              </div>
+              <div class="home-calendar-week" aria-hidden="true"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+              <div class="home-calendar-grid" id="home-calendar-grid" role="group" aria-label="选择日期"></div>
+            </section>
+            <section class="home-todo-card" aria-labelledby="home-todo-title">
+              <div class="home-todo-heading">
+                <h2 id="home-todo-title">To do</h2>
+                <button class="home-todo-more" id="open-todo-button" type="button">查看全部</button>
+              </div>
+              <div class="home-todo-preview" id="home-todo-preview"></div>
+              <button class="home-todo-empty-add" id="home-todo-add-button" type="button" hidden>添加待办</button>
+              <span class="home-todo-announcement" id="home-todo-announcement" role="status"></span>
+            </section>
+            <div class="home-library-grid">
+                <button class="home-entry" id="open-book-button" type="button" aria-label="打开 Book">
+                  <span class="home-entry-heading">
+                    <span class="home-entry-title">Book</span>
+                    <img src="./icons/figma-home/book.svg" alt="" />
                   </span>
-                  <span class="home-entry-main"><span class="home-entry-title">Todo</span><span class="home-entry-meta" id="home-todo-meta">0 项待办</span></span>
+                  <span class="home-entry-meta" id="home-book-meta">共计0本书</span>
                 </button>
                 <button class="home-entry" id="open-inner-diary-button" type="button" aria-label="打开 Diary">
-                  <span class="home-entry-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.05" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M13 22h5a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v7"/>
-                      <path d="M14 2v5a1 1 0 0 0 1 1h5"/>
-                      <path d="M3.62 18.8A2.25 2.25 0 1 1 7 15.836a2.25 2.25 0 1 1 3.38 2.966l-2.626 2.856a1 1 0 0 1-1.507 0z"/>
-                    </svg>
-                  </span>
-                  <span class="home-entry-main">
+                  <span class="home-entry-heading">
                     <span class="home-entry-title">Diary</span>
-                    <span class="home-entry-meta" id="home-diary-meta">0 篇</span>
+                    <img src="./icons/figma-home/diary.svg" alt="" />
                   </span>
+                  <span class="home-entry-meta" id="home-diary-meta">共计0篇</span>
                 </button>
-                <button class="home-entry" id="open-book-button" type="button" aria-label="打开 Book">
-                  <span class="home-entry-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.05" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                      <path d="M4 4v15.5A2.5 2.5 0 0 0 6.5 22H20"/>
-                      <path d="M8 7h8"/>
-                      <path d="M8 11h6"/>
-                      <path d="M20 17V4a2 2 0 0 0-2-2H6.5A2.5 2.5 0 0 0 4 4.5"/>
-                    </svg>
-                  </span>
-                  <span class="home-entry-main">
-                    <span class="home-entry-title">Book</span>
-                    <span class="home-entry-meta" id="home-book-meta">0 本书</span>
-                  </span>
-                </button>
-              </div>
             </div>
           </div>
         </section>
@@ -307,55 +294,37 @@
           </section>
         </section>
 
-        <section class="view settings-view" id="persona-view" aria-label="设定">
+        <section class="view settings-view" id="persona-view" aria-label="Agent 设置">
           <button class="profile-memory-entry" id="open-persona-core-button" type="button" aria-label="打开人设编辑">
-            <span class="profile-memory-icon" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17.925 20.056a6 6 0 0 0-11.851.001"/>
-                <circle cx="12" cy="11" r="4"/>
-                <circle cx="12" cy="12" r="10"/>
-              </svg>
-            </span>
+            <img class="profile-entry-icon" src="./icons/figma-profile/persona.svg" alt="" />
             <span class="profile-memory-main">
               <span class="profile-memory-title">人设</span>
             </span>
+            <img class="profile-entry-chevron" src="./icons/figma-profile/chevron.svg" alt="" />
           </button>
+          <span class="profile-divider" aria-hidden="true"><img src="./icons/figma-profile/divider.svg" alt="" /></span>
           <button class="profile-memory-entry" id="open-memory-button" type="button" aria-label="打开 Memory 库">
-            <span class="profile-memory-icon" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M7.001 15.085A1.5 1.5 0 0 1 9 16.5"/>
-                <circle cx="18.5" cy="8.5" r="3.5"/>
-                <circle cx="7.5" cy="16.5" r="5.5"/>
-                <circle cx="7.5" cy="4.5" r="2.5"/>
-              </svg>
-            </span>
+            <img class="profile-entry-icon" src="./icons/figma-profile/memory.svg" alt="" />
             <span class="profile-memory-main">
-              <span class="profile-memory-title">Memory 库</span>
+              <span class="profile-memory-title">Memory库</span>
             </span>
+            <img class="profile-entry-chevron" src="./icons/figma-profile/chevron.svg" alt="" />
           </button>
+          <span class="profile-divider" aria-hidden="true"><img src="./icons/figma-profile/divider.svg" alt="" /></span>
           <button class="profile-memory-entry" id="open-persona-style-button" type="button" aria-label="打开对话风格参考编辑">
-            <span class="profile-memory-icon" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M16 10a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 14.286V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-                <path d="M20 9a2 2 0 0 1 2 2v10.286a.71.71 0 0 1-1.212.502l-2.202-2.202A2 2 0 0 0 17.172 19H10a2 2 0 0 1-2-2v-1"/>
-              </svg>
-            </span>
+            <img class="profile-entry-icon" src="./icons/figma-profile/style.svg" alt="" />
             <span class="profile-memory-main">
               <span class="profile-memory-title">对话风格参考</span>
             </span>
+            <img class="profile-entry-chevron" src="./icons/figma-profile/chevron.svg" alt="" />
           </button>
+          <span class="profile-divider" aria-hidden="true"><img src="./icons/figma-profile/divider.svg" alt="" /></span>
           <button class="profile-memory-entry" id="open-backup-button" type="button" aria-label="打开存档">
-            <span class="profile-memory-icon" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14.364 13.634a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506l4.013-4.009a1 1 0 0 0-3.004-3.004z"/>
-                <path d="M14.487 7.858A1 1 0 0 1 14 7V2"/>
-                <path d="M20 19.645V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l2.516 2.516"/>
-                <path d="M8 18h1"/>
-              </svg>
-            </span>
+            <img class="profile-entry-icon" src="./icons/figma-profile/backup.svg" alt="" />
             <span class="profile-memory-main">
               <span class="profile-memory-title">存档</span>
             </span>
+            <img class="profile-entry-chevron" src="./icons/figma-profile/chevron.svg" alt="" />
           </button>
         </section>
 
@@ -805,54 +774,40 @@
       </main>
 
       <nav class="tabbar" aria-label="主导航">
-        <button class="tab is-active" data-view="chat" type="button" aria-label="聊天">
-          <span class="tab-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/>
-              <path d="M20 2v4"/>
-              <path d="M22 4h-4"/>
-              <circle cx="4" cy="20" r="2"/>
-            </svg>
-          </span>
+        <button class="tab is-active" data-view="chat" type="button" aria-label="聊天" aria-current="page">
+          <img class="tab-icon" src="./icons/figma-chat/chat.svg" alt="" />
+          <img class="focus-tab-icon" src="./icons/figma-focus/chat.svg" alt="" />
         </button>
         <button class="tab" data-view="pomodoro" type="button" aria-label="番茄钟">
-          <span class="tab-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 1.5"/><path d="M9 2h6"/><path d="M12 2v3"/>
-            </svg>
-          </span>
+          <img class="tab-icon" src="./icons/figma-chat/clock.svg" alt="" />
+          <img class="focus-tab-icon" src="./icons/figma-focus/clock.svg" alt="" />
         </button>
         <button class="tab" data-view="home" type="button" aria-label="主页">
-          <span class="tab-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
-              <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-            </svg>
-          </span>
+          <img class="tab-icon" src="./icons/figma-chat/home.svg" alt="" />
+          <img class="focus-tab-icon" src="./icons/figma-focus/home.svg" alt="" />
         </button>
         <button class="tab" data-view="persona" type="button" aria-label="设定">
-          <span class="tab-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M2 21a8 8 0 0 1 10.821-7.487"/>
-              <path d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/>
-              <circle cx="10" cy="8" r="5"/>
-            </svg>
-          </span>
+          <img class="tab-icon" src="./icons/figma-chat/user.svg" alt="" />
+          <img class="focus-tab-icon" src="./icons/figma-focus/user.svg" alt="" />
         </button>
         <button class="tab" data-view="api" type="button" aria-label="API">
-          <span class="tab-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M11 17a4 4 0 0 1-8 0V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2Z"/>
-              <path d="M16.7 13H19a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H7"/>
-              <path d="M 7 17h.01"/>
-              <path d="m11 8 2.3-2.3a2.4 2.4 0 0 1 3.404.004L18.6 7.6a2.4 2.4 0 0 1 .026 3.434L9.9 19.8"/>
-            </svg>
-          </span>
+          <img class="tab-icon" src="./icons/figma-chat/api.svg" alt="" />
+          <img class="focus-tab-icon" src="./icons/figma-focus/api.svg" alt="" />
         </button>
       </nav>
     </div>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <dialog class="pomodoro-mode-dialog" id="pomodoro-mode-dialog" aria-labelledby="pomodoro-mode-title">
+      <h2 id="pomodoro-mode-title">计时模式</h2>
+      <p>切换模式会重置当前计时。</p>
+      <div class="pomodoro-mode-tabs" role="group" aria-label="计时模式">
+        <button class="is-active" type="button" data-pomodoro-mode="focus" aria-pressed="true">专注 · 25 分钟</button>
+        <button type="button" data-pomodoro-mode="short" aria-pressed="false">短休息 · 5 分钟</button>
+        <button type="button" data-pomodoro-mode="long" aria-pressed="false">长休息 · 15 分钟</button>
+      </div>
+      <form method="dialog"><button class="pomodoro-mode-cancel" type="submit">取消</button></form>
+    </dialog>
     <div class="modal-overlay" id="anniversary-modal" hidden>
       <form class="modal-card" id="anniversary-form" role="dialog" aria-modal="true" aria-label="设置纪念日">
         <div class="modal-title">设置纪念日</div>
@@ -1033,20 +988,19 @@
       </div>
     </div>
     <div class="modal-overlay deep-talk-overlay" id="deep-talk-modal" hidden>
-      <div class="deep-talk-sheet" role="dialog" aria-modal="true" aria-label="DeepTalk">
-        <div class="moment-menu-handle" aria-hidden="true"></div>
-        <div class="deep-talk-heading">
-          <strong>DeepTalk</strong>
-          <span>从一个词开始，慢慢聊开</span>
+      <div class="deep-talk-sheet" role="dialog" aria-modal="true" aria-labelledby="deep-talk-title" aria-describedby="deep-talk-definition" tabindex="-1">
+        <button class="deep-talk-dismiss" id="deep-talk-dismiss-button" type="button" aria-label="收起 DeepTalk"><span aria-hidden="true"></span></button>
+        <div class="deep-talk-content">
+          <div class="deep-talk-heading"><strong id="deep-talk-title">DeepTalk</strong></div>
+          <div class="deep-talk-category" id="deep-talk-category">随机主题</div>
+          <div class="deep-talk-term" id="deep-talk-term">抽一个词</div>
+          <p class="deep-talk-definition" id="deep-talk-definition">每次抽到一个概念，再和 AI 一起把它聊明白。</p>
         </div>
-        <div class="deep-talk-category" id="deep-talk-category">随机主题</div>
-        <div class="deep-talk-term" id="deep-talk-term">抽一个词</div>
-        <p class="deep-talk-definition" id="deep-talk-definition">每次抽到一个概念，再和 AI 一起把它聊明白。</p>
         <div class="deep-talk-actions">
           <button class="deep-talk-action" id="deep-talk-draw-button" type="button">换一个词</button>
           <button class="deep-talk-action is-primary" id="deep-talk-ask-button" type="button">问问 AI</button>
         </div>
-        <button class="deep-talk-end" id="deep-talk-close-button" type="button">结束 DeepTalk</button>
+        <button class="deep-talk-end" id="deep-talk-close-button" type="button" hidden>结束 DeepTalk</button>
       </div>
     </div>
     <div class="modal-overlay moment-image-viewer" id="moment-image-viewer" role="dialog" aria-modal="true" aria-label="查看动态图片" hidden>
@@ -1120,6 +1074,6 @@
         </div>
       </div>
     </div>
-    <script src="./app.js?v=602" type="module"></script>
+    <script src="./app.js?v=620" type="module"></script>
   </body>
 </html>

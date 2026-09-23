@@ -1,0 +1,162 @@
+/* Figma 1130:5486. The timer retains live state; reference artwork stays local. */
+:root {
+  --focus-bg: #0f1310;
+  --focus-surface: #202020;
+  --focus-accent: #7053ff;
+}
+
+.focus-tab-icon { display: none; }
+
+.app-shell:has(#pomodoro-view.is-active) {
+  border: 0;
+  background: var(--focus-bg);
+  color: #fff;
+}
+
+.app-shell:has(#pomodoro-view.is-active) .topbar {
+  position: relative;
+  height: calc(40px + var(--app-safe-top));
+  min-height: calc(40px + var(--app-safe-top));
+  padding: var(--app-safe-top) 15px 0;
+  justify-content: center;
+  background: var(--focus-bg);
+}
+
+.app-shell:has(#pomodoro-view.is-active) .title-row h1 {
+  margin: 0;
+  font: 400 16px/40px "MiSans", sans-serif;
+  color: #fff;
+  cursor: pointer;
+}
+
+.app-shell:has(#pomodoro-view.is-active) .header-actions { display: none; }
+
+.view#pomodoro-view {
+  background: var(--focus-bg);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+#pomodoro-view .pomodoro-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 25px;
+  min-height: 100%;
+  padding: 24px 0 54px;
+  overflow: visible;
+}
+
+#pomodoro-view .pomodoro-clock {
+  position: relative;
+  display: grid;
+  flex: 0 0 310px;
+  width: 310px;
+  max-width: none;
+  height: 310px;
+  padding: 0;
+  background: transparent;
+}
+
+.pomodoro-outer-ring, .pomodoro-timer-ring {
+  position: absolute;
+  pointer-events: none;
+  display: block;
+}
+.pomodoro-outer-ring { inset: 0; }
+.pomodoro-timer-ring { top: 25px; left: 25px; }
+
+#pomodoro-view .pomodoro-clock-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: transparent;
+  color: #fff;
+}
+
+#pomodoro-view .pomodoro-clock-inner span,
+#pomodoro-view .pomodoro-clock-inner small {
+  color: rgba(255, 255, 255, 0.72);
+  font: 400 16px/21px "MiSans", sans-serif;
+}
+
+#pomodoro-view .pomodoro-clock-inner strong {
+  margin: 0;
+  color: #fff;
+  font: 500 48px/63px "MiSans", sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+#pomodoro-view .pomodoro-actions {
+  position: relative;
+  flex: 0 0 86px;
+  display: grid;
+  grid-template-columns: 70px 86px 70px;
+  align-items: center;
+  gap: 15px;
+  width: 256px;
+  height: 86px;
+}
+
+.pomodoro-controls-art { position: absolute; inset: 0; pointer-events: none; }
+
+#pomodoro-view .pomodoro-actions button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 70px;
+  height: 70px;
+  min-height: 70px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+#pomodoro-view .pomodoro-actions .pomodoro-toggle { width: 86px; height: 86px; }
+#pomodoro-view .pomodoro-toggle[data-running="false"] { background: var(--focus-accent); }
+.pomodoro-play-icon {
+  display: block;
+  width: 0;
+  height: 0;
+  margin-left: 5px;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 18px solid #fff;
+}
+.pomodoro-toggle[data-running="true"] .pomodoro-play-icon { display: none; }
+#pomodoro-view .pomodoro-actions button:active { background: rgba(255, 255, 255, 0.09); }
+#pomodoro-view .pomodoro-toggle[data-running="false"]:active { background: #8067ff; }
+.pomodoro-actions button:focus-visible,
+.pomodoro-mode-dialog button:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+
+.app-shell:has(#pomodoro-view.is-active) .tabbar { background: var(--focus-bg); }
+.app-shell:has(#pomodoro-view.is-active) .tab-icon { display: none; }
+.app-shell:has(#pomodoro-view.is-active) .focus-tab-icon { display: block; }
+body.chat-device-preview:has(#pomodoro-view.is-active) .tabbar::after { background: #fff; }
+
+.pomodoro-mode-dialog {
+  width: min(345px, calc(100% - 32px));
+  padding: 24px;
+  border: 1px solid #383838;
+  border-radius: 24px;
+  background: var(--focus-surface);
+  color: #fff;
+}
+.pomodoro-mode-dialog::backdrop { background: rgba(0, 0, 0, 0.6); }
+.pomodoro-mode-dialog h2 { margin: 0; font-size: 20px; }
+.pomodoro-mode-dialog p { margin: 12px 0 20px; color: #b8b8b8; font-size: 12px; }
+.pomodoro-mode-dialog .pomodoro-mode-tabs { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 0; background: transparent; }
+.pomodoro-mode-dialog .pomodoro-mode-tabs button { height: 44px; border-radius: 12px; background: #303030; color: #fff; }
+.pomodoro-mode-dialog .pomodoro-mode-tabs button.is-active { background: var(--focus-accent); }
+.pomodoro-mode-cancel { width: 100%; height: 44px; margin-top: 12px; border: 0; background: transparent; color: #c7c7c7; }
+
+@media (max-width: 340px) {
+  #pomodoro-view .pomodoro-clock { transform: scale(0.9); margin: -15.5px 0; }
+}
